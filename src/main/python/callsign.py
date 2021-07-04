@@ -1,4 +1,5 @@
 import random
+import time
 
 import simpleaudio as sa
 from playsound import playsound
@@ -85,6 +86,8 @@ AUDIO_SPEED_MID = "mid/"
 AUDIO_SPEED = AUDIO_SPEED_FAST
 AUDIO_LOCN = AUDIO_LOCN_BASE + AUDIO_SPEED
 PAUSE_SPEED = 750
+PAUSE_BETW_CALLSIGNS = 0.75
+PAUSE_BETW_LETTERS = 0.15
 
 def getLetter(pos):
     result = "noletter-" + str(pos)
@@ -164,10 +167,10 @@ def playNumberMid(pos):
     playNumberMid2(pos, AUDIO_LOCN)
 
 def playPause(wait):
-    filename = AUDIO_LOCN_BASE + "pause-" + str(wait) + ".wav"
-    wave_obj = sa.WaveObject.from_wave_file(filename)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
+    time.sleep(PAUSE_BETW_CALLSIGNS)
+
+def playLetterPause():
+    time.sleep(PAUSE_BETW_LETTERS)
 
 def callsign_simpleaudio_random_1():
     random.seed(None, 2)
@@ -194,22 +197,27 @@ def callsign_simpleaudio_random_2():
 
     rnd = random.randint(1, 4)
     playFirstLetterHigh(rnd)
+    playLetterPause()
 
     if rnd == 1:
         rnd = random.randint(1, 5)
         playLetterMid(rnd)
+        playLetterPause()
 
     rnd = random.randint(0, 9)
     playNumberMid(rnd)
+    playLetterPause()
 
     rndLtr = random.randint(1, 3)
     while rndLtr > 1:
         rnd = random.randint(1, 5)
         playLetterMid(rnd)
+        playLetterPause()
         rndLtr = rndLtr - 1
 
     rnd = random.randint(1, 5)
     playLetterLow(rnd)
+    playLetterPause()
 
 def main():
     # callsign_simpleaudio()
