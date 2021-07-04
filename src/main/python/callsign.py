@@ -220,4 +220,4 @@ def main():
     playPause(PAUSE_SPEED)
     callsign_simpleaudio_random_2()
 
-# main()
+main()
