@@ -189,16 +189,25 @@ def callsign_simpleaudio_random_2():
     rnd = random.randint(1, 4)
     playFirstLetterHigh(rnd)
 
+    if rnd == 1:
+        rnd = random.randint(1, 5)
+        playLetterMid(rnd)
+
     rnd = random.randint(0, 9)
     playNumberMid(rnd)
 
-    rnd = random.randint(1, 5)
-    playLetterMid(rnd)
+    rndLtr = random.randint(1, 3)
+    while rndLtr > 1:
+        rnd = random.randint(1, 5)
+        playLetterMid(rnd)
+        rndLtr = rndLtr - 1
 
     rnd = random.randint(1, 5)
     playLetterLow(rnd)
 
 
 # callsign_simpleaudio()
-callsign_simpleaudio_random_1()
+# callsign_simpleaudio_random_1()
+callsign_simpleaudio_random_2()
+callsign_simpleaudio_random_2()
 callsign_simpleaudio_random_2()
