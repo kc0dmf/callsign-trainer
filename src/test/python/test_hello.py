@@ -1,6 +1,6 @@
 # https://www.jetbrains.com/help/pycharm/pytest.html#create-pytest-test
 
-from src.main.python import hello1
+from src.main.python import hello1 as hello
 
 def test_my_function():
-    assert hello1.myFunction("5") == "param-5"
+    assert hello.myFunction("5") == "param-5"

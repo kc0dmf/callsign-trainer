@@ -79,6 +79,12 @@ def callsign_simpleaudio():
 # }
 # return result
 
+AUDIO_LOCN_BASE = "../resource/"
+AUDIO_SPEED_FAST = "fast/"
+AUDIO_SPEED_MID = "mid/"
+AUDIO_SPEED = AUDIO_SPEED_FAST
+AUDIO_LOCN = AUDIO_LOCN_BASE + AUDIO_SPEED
+PAUSE_SPEED = 750
 
 def getLetter(pos):
     result = "noletter-" + str(pos)
@@ -109,56 +115,56 @@ def getFirstLetter(pos):
     return result
 
 def getNumber(pos):
-    result = "nonumber-" + str(pos)
-    if pos == 0:
-        result = "zero"
-    elif pos == 1:
-        result = "one"
-    elif pos == 2:
-        result = "two"
-    elif pos == 3:
-        result = "three"
-    elif pos == 4:
-        result = "four"
-    elif pos == 5:
-        result = "five"
-    elif pos == 6:
-        result = "six"
-    elif pos == 7:
-        result = "seven"
-    elif pos == 8:
-        result = "eight"
-    elif pos == 9:
-        result = "nine"
+    # assumed pos is a number
+    return str(pos)
 
-    return result
-
-def playFirstLetterHigh(pos):
-    filename = "../resource/" + getFirstLetter(pos) + "-h" + ".wav"
+def playFirstLetterHigh2(pos, locn):
+    filename = locn + getFirstLetter(pos) + "-h" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
-def playLetterHigh(pos):
-    filename = "../resource/" + getLetter(pos) + "-h" + ".wav"
+def playFirstLetterHigh(pos):
+    playFirstLetterHigh2(pos, AUDIO_LOCN)
+
+# def playLetterHigh2(pos, locn):
+#     filename = locn + getLetter(pos) + "-h" + ".wav"
+#     wave_obj = sa.WaveObject.from_wave_file(filename)
+#     play_obj = wave_obj.play()
+#     play_obj.wait_done()
+#
+# def playLetterHigh(pos):
+#     playLetterHigh2(pos, AUDIO_LOCN)
+
+def playLetterMid2(pos, locn):
+    filename = locn + getLetter(pos) + "-m" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
 def playLetterMid(pos):
-    filename = "../resource/" + getLetter(pos) + "-m" + ".wav"
+    playLetterMid2(pos, AUDIO_LOCN)
+
+def playLetterLow2(pos, locn):
+    filename = locn + getLetter(pos) + "-l" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
 def playLetterLow(pos):
-    filename = "../resource/" + getLetter(pos) + "-l" + ".wav"
+    playLetterLow2(pos, AUDIO_LOCN)
+
+def playNumberMid2(pos, locn):
+    filename = locn + getNumber(pos) + "-m" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
 def playNumberMid(pos):
-    filename = "../resource/" + getNumber(pos) + "-m" + ".wav"
+    playNumberMid2(pos, AUDIO_LOCN)
+
+def playPause(wait):
+    filename = AUDIO_LOCN_BASE + "pause-" + str(wait) + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
@@ -166,19 +172,19 @@ def playNumberMid(pos):
 def callsign_simpleaudio_random_1():
     random.seed(None, 2)
     rnd = random.randint(1, 4)
-    filename = "../resource/" + getFirstLetter(rnd) + "-h" + ".wav"
+    filename = AUDIO_LOCN + getFirstLetter(rnd) + "-h" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
-    filename = "../resource/" + getNumber(random.randint(0, 9)) + "-m" + ".wav"
+    filename = AUDIO_LOCN + getNumber(random.randint(0, 9)) + "-m" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
-    filename = "../resource/" + getLetter(random.randint(1, 5)) + "-m" + ".wav"
+    filename = AUDIO_LOCN + getLetter(random.randint(1, 5)) + "-m" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
-    filename = "../resource/" + getLetter(random.randint(1, 5)) + "-l" + ".wav"
+    filename = AUDIO_LOCN + getLetter(random.randint(1, 5)) + "-l" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
@@ -205,9 +211,13 @@ def callsign_simpleaudio_random_2():
     rnd = random.randint(1, 5)
     playLetterLow(rnd)
 
+def main():
+    # callsign_simpleaudio()
+    # callsign_simpleaudio_random_1()
+    callsign_simpleaudio_random_2()
+    playPause(PAUSE_SPEED)
+    callsign_simpleaudio_random_2()
+    playPause(PAUSE_SPEED)
+    callsign_simpleaudio_random_2()
 
-# callsign_simpleaudio()
-# callsign_simpleaudio_random_1()
-callsign_simpleaudio_random_2()
-callsign_simpleaudio_random_2()
-callsign_simpleaudio_random_2()
+# main()
