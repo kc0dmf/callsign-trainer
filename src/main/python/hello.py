@@ -81,7 +81,7 @@ def callsign_simpleaudio():
 
 
 def getLetter(pos):
-    result = "noletter"
+    result = "noletter-" + str(pos)
     if pos == 1:
         result = "alpha"
     elif pos == 2:
@@ -96,20 +96,20 @@ def getLetter(pos):
     return result
 
 def getFirstLetter(pos):
-    result = "noletter"
+    result = "noletter-" + str(pos)
     if pos == 1:
         result = "alpha"
-    # elif pos == 2:
-    #     result = "kilo"
     elif pos == 2:
-        result = "november"
+        result = "kilo"
     elif pos == 3:
+        result = "november"
+    elif pos == 4:
         result = "whiskey"
 
     return result
 
 def getNumber(pos):
-    result = "nonumber"
+    result = "nonumber-" + str(pos)
     if pos == 0:
         result = "zero"
     elif pos == 1:
@@ -133,10 +133,40 @@ def getNumber(pos):
 
     return result
 
-def callsign_simpleaudio_random():
+def playFirstLetterHigh(pos):
+    filename = "../resource/" + getFirstLetter(pos) + "-h" + ".wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+
+def playLetterHigh(pos):
+    filename = "../resource/" + getLetter(pos) + "-h" + ".wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+
+def playLetterMid(pos):
+    filename = "../resource/" + getLetter(pos) + "-m" + ".wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+
+def playLetterLow(pos):
+    filename = "../resource/" + getLetter(pos) + "-l" + ".wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+
+def playNumberMid(pos):
+    filename = "../resource/" + getNumber(pos) + "-m" + ".wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+
+def callsign_simpleaudio_random_1():
     random.seed(None, 2)
-    rnd = random.randint(1, 5)
-    filename = "../resource/" + getFirstLetter(random.randint(1, 3)) + "-h" + ".wav"
+    rnd = random.randint(1, 4)
+    filename = "../resource/" + getFirstLetter(rnd) + "-h" + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
     play_obj.wait_done()
@@ -153,8 +183,22 @@ def callsign_simpleaudio_random():
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
-print("hello python world!!")
-x = myFunction("x")
-print("func: "+x)
+def callsign_simpleaudio_random_2():
+    random.seed(None, 2)
+
+    rnd = random.randint(1, 4)
+    playFirstLetterHigh(rnd)
+
+    rnd = random.randint(0, 9)
+    playNumberMid(rnd)
+
+    rnd = random.randint(1, 5)
+    playLetterMid(rnd)
+
+    rnd = random.randint(1, 5)
+    playLetterLow(rnd)
+
+
 # callsign_simpleaudio()
-callsign_simpleaudio_random()
+callsign_simpleaudio_random_1()
+callsign_simpleaudio_random_2()
