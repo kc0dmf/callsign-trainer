@@ -82,9 +82,11 @@ def callsign_simpleaudio():
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_SPEED_FAST = "fast/"
-AUDIO_SPEED_MID = "mid/"
+AUDIO_SPEED_SLOW = "mid/"
 AUDIO_SPEED = AUDIO_SPEED_FAST
 AUDIO_LOCN = AUDIO_LOCN_BASE + AUDIO_SPEED
+AUDIO_FAST = AUDIO_LOCN_BASE + AUDIO_SPEED_FAST
+AUDIO_SLOW = AUDIO_LOCN_BASE + AUDIO_SPEED_SLOW
 PAUSE_SPEED = 750
 PAUSE_BETW_CALLSIGNS = 0.75
 PAUSE_BETW_LETTERS = 0.15
@@ -192,10 +194,13 @@ def callsign_simpleaudio_random_1():
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
+
 def callsign_simpleaudio_random_2():
     random.seed(None, 2)
 
     rnd = random.randint(1, 4)
+    # TEMP - remove Alpha
+    rnd = random.randint(2, 4)
     playFirstLetterHigh(rnd)
     playLetterPause()
 
@@ -209,6 +214,8 @@ def callsign_simpleaudio_random_2():
     playLetterPause()
 
     rndLtr = random.randint(1, 3)
+    # TEMP - do a 1x3
+    rndLtr = 3
     while rndLtr > 1:
         rnd = random.randint(1, 5)
         playLetterMid(rnd)
@@ -219,13 +226,55 @@ def callsign_simpleaudio_random_2():
     playLetterLow(rnd)
     playLetterPause()
 
+def callsign_simpleaudio_random_3(speed):
+    random.seed(None, 2)
+
+    rnd = random.randint(1, 4)
+    # TEMP - remove Alpha
+    rnd = random.randint(2, 4)
+    playFirstLetterHigh2(rnd, speed)
+    playLetterPause()
+
+    if rnd == 1:
+        rnd = random.randint(1, 5)
+        playLetterMid2(rnd, speed)
+        playLetterPause()
+
+    rnd = random.randint(0, 9)
+    playNumberMid2(rnd, speed)
+    playLetterPause()
+
+    rndLtr = random.randint(1, 3)
+    # TEMP - do a 1x3
+    rndLtr = 3
+    while rndLtr > 1:
+        rnd = random.randint(1, 5)
+        playLetterMid2(rnd, speed)
+        playLetterPause()
+        rndLtr = rndLtr - 1
+
+    rnd = random.randint(1, 5)
+    playLetterLow2(rnd, speed)
+    playLetterPause()
+
 def main():
     # callsign_simpleaudio()
     # callsign_simpleaudio_random_1()
-    callsign_simpleaudio_random_2()
+
+    # callsign_simpleaudio_random_2()
+    # playPause(PAUSE_SPEED)
+    # callsign_simpleaudio_random_2()
+    # playPause(PAUSE_SPEED)
+    # callsign_simpleaudio_random_2()
+    # playPause(PAUSE_SPEED)
+
+    callsign_simpleaudio_random_3(AUDIO_SLOW)
     playPause(PAUSE_SPEED)
-    callsign_simpleaudio_random_2()
+    callsign_simpleaudio_random_3(AUDIO_SLOW)
     playPause(PAUSE_SPEED)
-    callsign_simpleaudio_random_2()
+    callsign_simpleaudio_random_3(AUDIO_FAST)
+    playPause(PAUSE_SPEED)
+    callsign_simpleaudio_random_3(AUDIO_FAST)
+    playPause(PAUSE_SPEED)
 
 main()
