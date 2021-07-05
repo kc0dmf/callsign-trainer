@@ -5,49 +5,51 @@ from src.main.python import callsign
 AUDIO_LOCN_BASE = "../../main/resource/"
 
 
-def test_medium_letters_high():
+def test_play_numbers_slow():
     time.sleep(0.75)
-    for x in range(1, 5):
-        callsign.playLetterHigh2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
+    for ele in range(0, 10):
+        callsign.playCharacter(str(ele) + "-m", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
 
 
-def test_medium_letters_mid():
+def test_play_chars_high_slow():
     time.sleep(0.75)
-    for x in range(1, 7):
-        callsign.playLetterMid2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
+    for ele in ['A','K','N','W']:
+        callsign.playCharacter(str(ele) + "-h", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
 
 
-def test_medium_letters_low():
+def test_play_chars_mid_slow():
     time.sleep(0.75)
-    for x in range(1, 7):
-        callsign.playLetterLow2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
+    for ele in ['A','B','C','K','N','W']:
+        callsign.playCharacter(str(ele) + "-m", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
 
 
-def test_medium_numbers():
+def test_play_chars_low_slow():
     time.sleep(0.75)
-    for x in range(0, 10):
-        callsign.playNumberMid2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
+    for ele in ['A','B','C','K','N','W']:
+        callsign.playCharacter(str(ele) + "-l", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_SLOW)
 
 
-def test_fast_letters_high():
+def test_play_numbers_fast():
     time.sleep(0.75)
-    for x in range(1, 5):
-        callsign.playLetterHigh2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
+    for ele in range(0, 10):
+        callsign.playCharacter(str(ele) + "-m", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
 
 
-def test_fast_letters_mid():
+def test_play_chars_high_fast():
     time.sleep(0.75)
-    for x in range(1, 7):
-        callsign.playLetterMid2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
+    for ele in ['A','K','N','W']:
+        callsign.playCharacter(str(ele) + "-h", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
 
 
-def test_fast_letters_low():
+def test_play_chars_mid_fast():
     time.sleep(0.75)
-    for x in range(1, 7):
-        callsign.playLetterLow2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
+    for ele in ['A','B','C','K','N','W']:
+        callsign.playCharacter(str(ele) + "-m", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
 
 
-def test_fast_numbers():
+def test_play_chars_low_fast():
     time.sleep(0.75)
-    for x in range(0, 10):
-        callsign.playNumberMid2(x, AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
+    for ele in ['A','B','C','K','N','W']:
+        callsign.playCharacter(str(ele) + "-l", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
+
+

@@ -1,7 +1,5 @@
 from src.main.python import callsign
 
-AUDIO_LOCN_BASE = "../../main/resource/"
-
 
 #
 # Test first letters
@@ -49,6 +47,21 @@ def test_letter_06():
     assert callsign.getLetter(6) == "W"
 
 
+def test_get_suffix_count():
+    for i in range(1, 50):
+        val = callsign.get_suffix_count()
+        if val < 1 or val > 3:
+            assert val == 0
+
+
+def test_get_prefix_count():
+    for i in range(1, 50):
+        val = callsign.get_prefix_count()
+        if val < 1 or val > 2:
+            assert val == 0
+
+
+# TODO remove test
 def test_arrays():
     str = "abc"
     # convert string to array
