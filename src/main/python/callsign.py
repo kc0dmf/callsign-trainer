@@ -2,8 +2,7 @@ import random
 import time
 
 import simpleaudio as sa
-from playsound import playsound
-import pygame
+
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_SPEED_FAST = "fast/"
@@ -51,73 +50,12 @@ def getNumber(pos):
     return str(pos)
 
 
-def playLetterHigh2(pos, locn):
-    filename = locn + getFirstLetter(pos) + "-h" + ".wav"
-    wave_obj = sa.WaveObject.from_wave_file(filename)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
-
-
-def playLetterMid2(pos, locn):
-    filename = locn + getLetter(pos) + "-m" + ".wav"
-    wave_obj = sa.WaveObject.from_wave_file(filename)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
-
-
-def playLetterLow2(pos, locn):
-    filename = locn + getLetter(pos) + "-l" + ".wav"
-    wave_obj = sa.WaveObject.from_wave_file(filename)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
-
-
-def playNumberMid2(pos, locn):
-    filename = locn + getNumber(pos) + "-m" + ".wav"
-    wave_obj = sa.WaveObject.from_wave_file(filename)
-    play_obj = wave_obj.play()
-    play_obj.wait_done()
-
-
 def playPause(wait):
     time.sleep(PAUSE_BETW_CALLSIGNS)
 
 
 def playLetterPause():
     time.sleep(PAUSE_BETW_LETTERS)
-
-
-def callsign_simpleaudio_random_3(speed):
-    random.seed(None, 2)
-
-    # first letter
-    rnd = random.randint(1, 4)
-    # TODO - remove Alpha
-    rnd = random.randint(2, 4)
-    playLetterHigh2(rnd, speed)
-    playLetterPause()
-
-    if rnd == 1:
-        rnd = random.randint(1, 5)
-        playLetterMid2(rnd, speed)
-        playLetterPause()
-
-    rnd = random.randint(0, 9)
-    playNumberMid2(rnd, speed)
-    playLetterPause()
-
-    rndLtr = random.randint(1, 3)
-    # TODO - do a 1x3
-    rndLtr = 3
-    while rndLtr > 1:
-        rnd = random.randint(1, 5)
-        playLetterMid2(rnd, speed)
-        playLetterPause()
-        rndLtr = rndLtr - 1
-
-    rnd = random.randint(1, 5)
-    playLetterLow2(rnd, speed)
-    playLetterPause()
 
 
 def get_suffix_count():
@@ -187,25 +125,40 @@ def play_callsign(callsign, speed):
         playCharacter(str(ele) + inflection, speed)
 
 
-def main():
-    # callsign_simpleaudio_random_3(AUDIO_SLOW)
-    # playPause(PAUSE_SPEED)
-    # callsign_simpleaudio_random_3(AUDIO_SLOW)
-    # playPause(PAUSE_SPEED)
-    # callsign_simpleaudio_random_3(AUDIO_FAST)
-    # playPause(PAUSE_SPEED)
-    # callsign_simpleaudio_random_3(AUDIO_FAST)
-    # playPause(PAUSE_SPEED)
+def compare(expected, actual):
+    return expected == actual
 
-    print(randomize_callsign())
-    print(randomize_callsign())
-    callsign = randomize_callsign()
-    print(callsign)
-    for ele in callsign:
-        print(ele)
-    print("---")
-    play_callsign(callsign, AUDIO_FAST)
-    play_callsign(callsign, AUDIO_SLOW)
+
+def playCorrect(locn):
+    filename = locn + "correct.wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+    playLetterPause()
+
+
+def get_input(actual_callsign):
+    user_guess = "GUESS"
+    while user_guess == "GUESS":
+        user_guess = input("Callsign? ").upper()
+        if bool(compare(actual_callsign, user_guess)):
+            playCorrect(AUDIO_LOCN_BASE)
+            user_guess = "GO"
+        elif user_guess != "":
+            play_callsign(actual_callsign, AUDIO_FAST)
+            user_guess = "GUESS"
+    return user_guess
+
+
+def main():
+    results = "GO"
+    while results == "GO":
+        actual_callsign = randomize_callsign()
+        play_callsign(actual_callsign, AUDIO_FAST)
+        play_callsign(actual_callsign, AUDIO_SLOW)
+
+        results = get_input(actual_callsign)
+    print(actual_callsign)
 
 
 main()
