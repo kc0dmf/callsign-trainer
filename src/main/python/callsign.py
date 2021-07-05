@@ -1,7 +1,12 @@
 import random
 import time
-
 import simpleaudio as sa
+
+# Python environment
+# python3 -m venv /path/to/new/virtual/environment
+# python3 -m venv ./env/callsign_trainer
+# source ./env/callsign_trainer/bin/activate
+#
 
 
 AUDIO_LOCN_BASE = "../resource/"
