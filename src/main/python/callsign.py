@@ -137,7 +137,7 @@ def playCorrect(locn):
     playLetterPause()
 
 
-def get_input(actual_callsign):
+def get_input(actual_callsign, speed):
     user_guess = "GUESS"
     while user_guess == "GUESS":
         user_guess = input("Callsign? ").upper()
@@ -145,7 +145,7 @@ def get_input(actual_callsign):
             playCorrect(AUDIO_LOCN_BASE)
             user_guess = "GO"
         elif user_guess != "":
-            play_callsign(actual_callsign, AUDIO_FAST)
+            play_callsign(actual_callsign, speed)
             user_guess = "GUESS"
     return user_guess
 
@@ -175,7 +175,7 @@ def main():
         actual_callsign = randomize_callsign()
         play_callsign(actual_callsign, speed)
 
-        results = get_input(actual_callsign)
+        results = get_input(actual_callsign, speed)
 
     print(actual_callsign)
 
