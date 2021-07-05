@@ -50,7 +50,7 @@ def getNumber(pos):
     return str(pos)
 
 
-def playPause(wait):
+def playPause():
     time.sleep(PAUSE_BETW_CALLSIGNS)
 
 
@@ -75,16 +75,18 @@ def randomize_callsign():
     rndSuffix = get_suffix_count()
 
     # TODO: remove; force to be 1x3
-    rndPrefix = 1
-    rndSuffix = 3
+    # rndPrefix = 1
+    # rndSuffix = 3
 
     # prefix letter(s)
     if rndPrefix == 2:
+        # allow all first letters
         rnd = random.randint(1, MAX_NUM_FIRST_LETTER)
         result += getFirstLetter(rnd)
         rnd = random.randint(1, MAX_NUM_ANY_LETTER)
         result += getLetter(rnd)
     else:
+        # exclude A as a first letter
         rnd = random.randint(2, MAX_NUM_FIRST_LETTER)
         result += getFirstLetter(rnd)
 
@@ -143,6 +145,7 @@ def get_input(actual_callsign, speed):
         user_guess = input("Callsign? ").upper()
         if bool(compare(actual_callsign, user_guess)):
             playCorrect(AUDIO_LOCN_BASE)
+            playPause()
             user_guess = "GO"
         elif user_guess != "":
             play_callsign(actual_callsign, speed)
@@ -167,7 +170,7 @@ def config_speed():
     return speed
 
 
-def main():
+def run_the_game():
     speed = config_speed()
     results = "GO"
     actual_callsign = ""
@@ -176,8 +179,11 @@ def main():
         play_callsign(actual_callsign, speed)
 
         results = get_input(actual_callsign, speed)
-
     print(actual_callsign)
 
 
-main()
+def main():
+    run_the_game()
+    # TODO add flag to do only 1x3 calls
+
+# main()

@@ -53,3 +53,12 @@ def test_play_chars_low_fast():
         callsign.playCharacter(str(ele) + "-l", AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST)
 
 
+def test_callsigns():
+    speed = AUDIO_LOCN_BASE + callsign.AUDIO_SPEED_FAST
+    print()
+    for i in range(1, 6):
+        actual_callsign = callsign.randomize_callsign()
+        print(actual_callsign)
+        callsign.play_callsign(actual_callsign, speed)
+        callsign.playPause()
+
