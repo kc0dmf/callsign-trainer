@@ -60,5 +60,9 @@ def test_arrays():
     str2 = ""
     for ele in two:
         str2 += ele
-    print(str2)
+    print("str2 = "+str2)
     assert str == str2
+
+    print("str2:")
+    for ele in str2:
+        print(ele)
