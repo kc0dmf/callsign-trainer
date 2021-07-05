@@ -15,8 +15,10 @@ import pytest
 
 # sys.path.append('../src/main/python')
 
+
 def test_sum1():
     assert 1 + 2 == 3, "Should be 3"
+
 
 def test_sum2():
     assert 1 + 2 == 3, "Should be 3"
