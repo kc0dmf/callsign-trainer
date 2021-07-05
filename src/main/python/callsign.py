@@ -18,6 +18,9 @@ PAUSE_BETW_LETTERS = 0.10
 MAX_NUM_FIRST_LETTER = 4
 MAX_NUM_ANY_LETTER = 6
 
+user_attempts = 0
+user_correct = 0
+
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
     , 6: "F", 7: "G", 8: "H", 9: "I", 10: "J"
@@ -140,23 +143,30 @@ def playCorrect(locn):
 
 
 def get_input(actual_callsign, speed):
+    global user_attempts
+    global user_correct
     user_guess = "GUESS"
     while user_guess == "GUESS":
         user_guess = input("Callsign? ").upper()
+        user_attempts = user_attempts + 1
         if bool(compare(actual_callsign, user_guess)):
             playCorrect(AUDIO_LOCN_BASE)
             playPause()
             user_guess = "GO"
-        elif user_guess != "":
+            user_correct = user_correct + 1
+        elif user_guess != "" and user_guess != "Q":
             play_callsign(actual_callsign, speed)
             user_guess = "GUESS"
+        else:
+            user_attempts = user_attempts - 1
+
     return user_guess
 
 
 def config_speed():
     response = ""
     speed = AUDIO_SLOW
-    call = "N9ABC"
+    call = "AB9C"
     while response == "":
         print("S) Slow (" + call + ")")
         play_callsign(call, AUDIO_SLOW)
@@ -177,13 +187,17 @@ def run_the_game():
     while results == "GO":
         actual_callsign = randomize_callsign()
         play_callsign(actual_callsign, speed)
-
         results = get_input(actual_callsign, speed)
+
+    # print the last callsign
+    print()
     print(actual_callsign)
+    print("Total callsigns: " + str(user_correct))
+    print("Total attempts:  " + str(user_attempts))
 
 
 def main():
     run_the_game()
     # TODO add flag to do only 1x3 calls
 
-# main()
+main()
