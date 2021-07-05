@@ -1,0 +1,235 @@
+import random
+import time
+import simpleaudio as sa
+import multiprocessing
+
+# Python environment
+# python3 -m venv /path/to/new/virtual/environment
+# python3 -m venv ./env/callsign_trainer
+# source ./env/callsign_trainer/bin/activate
+#
+
+AUDIO_LOCN_BASE = "../resource/"
+AUDIO_SPEED_FAST = "fast/"
+AUDIO_SPEED_SLOW = "mid/"
+
+AUDIO_FAST = AUDIO_LOCN_BASE + AUDIO_SPEED_FAST
+AUDIO_SLOW = AUDIO_LOCN_BASE + AUDIO_SPEED_SLOW
+
+PAUSE_SPEED = 750
+PAUSE_BETW_CALLSIGNS = 0.75
+PAUSE_BETW_LETTERS = 0.15
+
+MAX_NUM_FIRST_LETTER = 4
+MAX_NUM_ANY_LETTER = 6
+
+user_attempts = 0
+user_correct = 0
+
+letterDict = {
+    1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
+    , 6: "F", 7: "G", 8: "H", 9: "I", 10: "J"
+    , 11: "K", 12: "L", 13: "M", 14: "N", 15: "O"
+    , 16: "P", 17: "Q", 18: "R", 19: "S", 20: "T"
+    , 21: "U", 22: "V", 23: "W", 24: "X", 25: "Y"
+    , 26: "Z"
+}
+
+tempLetterDict = {
+    1: 1, 2: 2, 3: 3, 4: 11, 5: 14, 6: 23
+}
+firstLetterDict = {
+    1: 1, 2: 11, 3: 14, 4: 23
+}
+
+
+def getLetter(pos):
+    return letterDict[tempLetterDict[pos]]
+    # TODO: fix
+    # return letterDict[pos]
+
+
+def getFirstLetter(pos):
+    return letterDict[firstLetterDict[pos]]
+
+
+def getNumber(pos):
+    # assumed pos is a number
+    return str(pos)
+
+
+def playPause():
+    time.sleep(PAUSE_BETW_CALLSIGNS)
+
+
+def playLetterPause():
+    time.sleep(PAUSE_BETW_LETTERS)
+
+
+def get_suffix_count():
+    return random.randint(1, 3)
+
+
+def get_prefix_count():
+    return random.randint(1, 2)
+
+
+def randomize_callsign():
+    # call signs can be: 1x1, 1x2, 1x3, 2x1, 2x2, 2x3
+    result = ""
+
+    random.seed(None, 2)
+    rndPrefix = get_prefix_count()
+    rndSuffix = get_suffix_count()
+
+    # TODO: remove; force to be 1x3
+    # rndPrefix = 1
+    # rndSuffix = 3
+
+    # prefix letter(s)
+    if rndPrefix == 2:
+        # allow all first letters
+        rnd = random.randint(1, MAX_NUM_FIRST_LETTER)
+        result += getFirstLetter(rnd)
+        rnd = random.randint(1, MAX_NUM_ANY_LETTER)
+        result += getLetter(rnd)
+    else:
+        # exclude A as a first letter
+        rnd = random.randint(2, MAX_NUM_FIRST_LETTER)
+        result += getFirstLetter(rnd)
+
+    # number
+    rnd = random.randint(0, 9)
+    result += getNumber(rnd)
+
+    # suffix letters
+    while rndSuffix > 1:
+        rnd = random.randint(1, MAX_NUM_ANY_LETTER)
+        result += getLetter(rnd)
+        rndSuffix = rndSuffix - 1
+    rnd = random.randint(1, MAX_NUM_ANY_LETTER)
+    result += getLetter(rnd)
+
+    return result
+
+
+def playCharacter(theChar, locn):
+    filename = locn + theChar + ".wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+    playLetterPause()
+
+
+def play_callsign(callsign, speed):
+    size = len(callsign)
+    cnt = 1
+
+    for ele in callsign:
+        inflection = "-m"
+        if cnt == 1:
+            inflection = "-h"
+        if cnt == size:
+            inflection = "-l"
+        cnt += 1
+        playCharacter(str(ele) + inflection, speed)
+
+
+def compare(expected, actual):
+    return expected == actual
+
+
+def playCorrect(locn):
+    filename = locn + "correct.wav"
+    wave_obj = sa.WaveObject.from_wave_file(filename)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()
+    playLetterPause()
+
+
+def get_input(actual_callsign, speed):
+    global user_attempts
+    global user_correct
+    user_guess = "GUESS"
+    while user_guess == "GUESS":
+        user_guess = input("Callsign? ").upper()
+        user_attempts = user_attempts + 1
+        if bool(compare(actual_callsign, user_guess)):
+            playCorrect(AUDIO_LOCN_BASE)
+            playPause()
+            user_guess = "GO"
+            user_correct = user_correct + 1
+        elif user_guess != "" and user_guess != "Q":
+            play_callsign(actual_callsign, speed)
+            user_guess = "GUESS"
+        else:
+            user_attempts = user_attempts - 1
+
+    return user_guess
+
+
+def config_speed():
+    response = ""
+    speed = AUDIO_SLOW
+    call = "AB9C"
+    while response == "":
+        print("S) Slow (" + call + ")")
+        play_callsign(call, AUDIO_SLOW)
+        print("F) Fast (" + call + ")")
+        play_callsign(call, AUDIO_FAST)
+        response = input("Speed? ").upper()
+
+    if response == "F":
+        speed = AUDIO_FAST
+
+    return speed
+
+
+def run_the_game():
+    speed = config_speed()
+    results = "GO"
+    callsign1 = ""
+    callsign2 = ""
+    while results == "GO":
+        callsign1 = randomize_callsign()
+        callsign2 = randomize_callsign()
+        # play_callsign(actual_callsign, speed)
+
+        p1 = multiprocessing.Process(target=play_callsign, args=[callsign1])
+        p2 = multiprocessing.Process(target=play_callsign, args=[callsign2])
+        p1.start()
+        p2.start()
+        results = get_input(actual_callsign, speed)
+
+    # print the last callsign
+    print()
+    print(actual_callsign)
+    print("Total callsigns: " + str(user_correct))
+    print("Total attempts:  " + str(user_attempts))
+
+
+def main():
+    # run_the_game()
+    # TODO add flag to do only 1x3 calls
+    i = 0
+
+
+thd = "-"
+callsign1 = randomize_callsign()
+callsign2 = randomize_callsign()
+# play_callsign(actual_callsign, speed)
+print("--> " + thd + " " + callsign1)
+print("--> " + thd + " " + callsign2)
+
+p1 = multiprocessing.Process(target=play_callsign, args=[callsign1, AUDIO_SLOW])
+p2 = multiprocessing.Process(target=play_callsign, args=[callsign2, AUDIO_FAST])
+if __name__ == '__main__':
+    # using join joined them to the main thread, and the audios
+    # were spoken sequentially; minimally comment out p1.join()
+    thd="p1"
+    p1.start()
+    # p1.join()
+    thd="p2"
+    p2.start()
+    p2.join()
+    thd="xxx"
