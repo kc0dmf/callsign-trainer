@@ -150,14 +150,33 @@ def get_input(actual_callsign):
     return user_guess
 
 
+def config_speed():
+    response = ""
+    speed = AUDIO_SLOW
+    call = "N9ABC"
+    while response == "":
+        print("S) Slow (" + call + ")")
+        play_callsign(call, AUDIO_SLOW)
+        print("F) Fast (" + call + ")")
+        play_callsign(call, AUDIO_FAST)
+        response = input("Speed? ").upper()
+
+    if response == "F":
+        speed = AUDIO_FAST
+
+    return speed
+
+
 def main():
+    speed = config_speed()
     results = "GO"
+    actual_callsign = ""
     while results == "GO":
         actual_callsign = randomize_callsign()
-        play_callsign(actual_callsign, AUDIO_FAST)
-        play_callsign(actual_callsign, AUDIO_SLOW)
+        play_callsign(actual_callsign, speed)
 
         results = get_input(actual_callsign)
+
     print(actual_callsign)
 
 
