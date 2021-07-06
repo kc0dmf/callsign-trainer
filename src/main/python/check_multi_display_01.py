@@ -11,8 +11,8 @@ import pygame as pg
 
 def random_letters(n):
     """Pick n random letters."""
-    return ''.join(choice(ascii_letters) for _ in range(n))
-    # return 'kc0dmf'
+    # return ''.join(choice(ascii_letters) for _ in range(n))
+    return 'kc0dmf'
 
 
 def main():
@@ -26,7 +26,8 @@ def main():
     timer = 10
     done = False
 
-    clrflip = 0
+    clr = 0
+    clrstep = 20
 
     while not done:
         for event in pg.event.get():
@@ -37,15 +38,19 @@ def main():
         timer -= 1
         # Update the text surface and color every 10 frames.
         if timer <= 0:
-            timer = 30
-            color = (randrange(256), randrange(256), randrange(256))
+            timer = 10
+            clr += clrstep
+            if clr > (255-clrstep) or clr <= 0:
+                clrstep = clrstep * (-1)
+            # color = (randrange(256), randrange(256), randrange(256))
+            color = (clr, clr, clr)
             txt = font.render(random_letters(randrange(5, 21)), True, color)
 
         screen.fill((30, 30, 30))
         screen.blit(txt, txt.get_rect(center=screen_rect.center))
 
         pg.display.flip()
-        clock.tick(30)
+        clock.tick(100)
 
 
 if __name__ == '__main__':
