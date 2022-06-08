@@ -18,7 +18,7 @@ AUDIO_SLOW = AUDIO_LOCN_BASE + AUDIO_SPEED_SLOW
 
 PAUSE_SPEED = 750
 PAUSE_BETW_CALLSIGNS = 0.75
-PAUSE_BETW_LETTERS = 0.15
+PAUSE_BETW_LETTERS = 0.10
 
 MAX_NUM_FIRST_LETTER = 4
 MAX_NUM_ANY_LETTER = 6
@@ -82,8 +82,8 @@ def randomize_callsign():
     rndPrefix = get_prefix_count()
     rndSuffix = get_suffix_count()
 
-    # TODO: remove; force to be 1x3
-    # rndPrefix = 1
+    # TODO: force to be 1x3, 2x3, etc
+    # rndPrefix = 2
     # rndSuffix = 3
 
     # prefix letter(s)
@@ -171,7 +171,9 @@ def get_input(actual_callsign, speed):
 def config_speed():
     response = ""
     speed = AUDIO_SLOW
-    call = "AB9C"
+    call = "N9ABC"
+    print()
+    print()
     while response == "":
         print("S) Slow (" + call + ")")
         play_callsign(call, AUDIO_SLOW)
@@ -196,13 +198,16 @@ def run_the_game():
 
     # print the last callsign
     print()
-    print(actual_callsign)
-    print("Total callsigns: " + str(user_correct))
-    print("Total attempts:  " + str(user_attempts))
+    print("last callsign: " + actual_callsign)
+    print()
+    print("Total callsigns guessed: " + str(user_correct))
+    print("Total attempts made:     " + str(user_attempts))
+    print()
 
 
 def main():
     run_the_game()
     # TODO add flag to do only 1x3 calls
+
 
 main()
