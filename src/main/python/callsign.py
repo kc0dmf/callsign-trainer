@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import random
 import time
 import simpleaudio as sa
@@ -8,6 +10,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
+VERSION = "1.0.1"
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_SPEED_FAST = "fast/"
@@ -172,7 +175,12 @@ def config_speed():
     response = ""
     speed = AUDIO_SLOW
     call = "N9ABC"
+
     print()
+    print("Note:")
+    print("  A correct response will move you on to the next callsign.")
+    print("  An incorrect response will repeat the same callsign again.")
+    print("  Pressing the Enter key without any value will end the program.")
     print()
     while response == "":
         print("S) Slow (" + call + ")")
@@ -180,14 +188,22 @@ def config_speed():
         print("F) Fast (" + call + ")")
         play_callsign(call, AUDIO_FAST)
         response = input("Speed? ").upper()
+        if response == "F":
+            speed = AUDIO_FAST
 
-    if response == "F":
-        speed = AUDIO_FAST
+        # TODO this Else-If isn't working
+        #elif response == "S":
+            #speed = AUDIO_SLOW
+        #else:
+            #response == ""
 
     return speed
 
 
 def run_the_game():
+    print()
+    print("Callsign Trainer v" + VERSION)
+
     speed = config_speed()
     results = "GO"
     actual_callsign = ""
