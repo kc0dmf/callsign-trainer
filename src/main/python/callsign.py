@@ -10,7 +10,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "1.0.1"
+VERSION = "0.7.1"
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_SPEED_FAST = "fast/"
@@ -39,7 +39,7 @@ letterDict = {
 }
 
 tempLetterDict = {
-    1: 1, 2: 2, 3: 3, 4: 11, 5: 14, 6: 23
+    1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 11, 8: 14, 9: 23
 }
 firstLetterDict = {
     1: 1, 2: 11, 3: 14, 4: 23
@@ -220,9 +220,49 @@ def run_the_game():
     print("Total attempts made:     " + str(user_attempts))
     print()
 
+def run_the_test_all_chars():
+    print()
+    print("TEST -- Callsign Trainer v" + VERSION)
+    
+    speed = config_speed()
+    results = "GO"
+    actual_callsign = ""
+    # letterDict[tempLetterDict[pos]]
+    for ltr in tempLetterDict:
+        print("letter: " + str(ltr))
+        playCharacter(getLetter(ltr) + "-h", speed)
+    for ltr in tempLetterDict:
+        print("letter: " + str(ltr))
+        playCharacter(getLetter(ltr) + "-m", speed)
+    for ltr in range(0,10):
+        print("number: " + str(ltr))
+        playCharacter(getNumber(ltr) + "-m", speed)
+    for ltr in tempLetterDict:
+        print("letter: " + str(ltr))
+        playCharacter(getLetter(ltr) + "-l", speed)
+
+    print()
+
+def run_the_test_rnd_calls():
+    print()
+    print("TEST -- Callsign Trainer v" + VERSION)
+    
+    speed = config_speed()
+    results = "GO"
+    actual_callsign = ""
+    
+    for num in range(0,10):
+        actual_callsign = randomize_callsign()
+        print(actual_callsign)
+        play_callsign(actual_callsign, speed)
+
+    print()
+
 
 def main():
-    run_the_game()
+    # run_the_game()
+    # run_the_test_all_chars()
+    run_the_test_rnd_calls()
     # TODO add flag to do only 1x3 calls
 
 
