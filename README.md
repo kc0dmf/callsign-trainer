@@ -2,10 +2,14 @@
 
 Ham radio callsign trainer.
 
-How To Run:
-* (activate the python environment; this might have been erased)
-* cd ./src/main/python
-* python3 callsign.py
+## How to Install
+$ pip3 install simpleaudio
+TODO: How to install python environment?
+
+## How To Run:
+$ (activate the python environment; this might have been erased)
+$ cd ./src/main/python
+$ python3 callsign.py
 
 To create a python environment:
 $ python -m venv [directory]
