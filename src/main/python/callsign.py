@@ -10,7 +10,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "0.8.1"
+VERSION = "0.8.2"
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_LOCN_FAST = "fast/"
@@ -31,8 +31,18 @@ PAUSE_SPEED = 750
 PAUSE_BETW_CALLSIGNS = 0.50
 PAUSE_BETW_LETTERS = 0.10
 
-user_attempts = 0
-user_correct = 0
+# Statistic variables
+total_callsigns = 0
+total_user_guesses = 0
+stats_prefix_size = 0
+stats_suffix_size = 0
+stats_current_callsign = ""
+stats_shortest_guess_streak = 1000
+stats_shortest_guess_streak_curr_cnt = 0
+stats_shortest_guess_streak_call = ""
+stats_longest_guess_streak = 0
+stats_longest_guess_streak_curr_cnt = 0
+stats_longest_guess_streak_call = ""
 
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
@@ -123,7 +133,7 @@ def randomize_callsign():
     rndPrefix = get_prefix_count()
     rndSuffix = get_suffix_count()
 
-    # TODO: force to be 1x3, 2x3, etc
+    # NOTE: this will force to be 1x3, 2x3, etc
     # rndPrefix = 2
     # rndSuffix = 3
 
@@ -159,6 +169,9 @@ def randomize_callsign():
         rndSuffix = rndSuffix - 1
     rnd = random.randint(1, MAX_NUM_ANY_LETTER)
     result += getLetter(rnd)
+
+    # set stats
+    set_stats_callsign_size(rndPrefix, rndSuffix, result)
 
     return result
 
@@ -208,7 +221,7 @@ def playCorrect(rnd, locn):
     playLetterPause()
 
 
-def playCorrect_done(locn):
+def play_done(locn):
     rnd = 5
     filename = locn + "correct-" + str(rnd) + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
@@ -218,22 +231,24 @@ def playCorrect_done(locn):
 
 
 def get_input(actual_callsign, speed):
-    global user_attempts
-    global user_correct
+    global total_callsigns
+    global total_user_guesses
     user_guess = "GUESS"
+
     while user_guess == "GUESS":
         user_guess = input("Callsign? ").upper()
-        user_attempts = user_attempts + 1
         if bool(compare(actual_callsign, user_guess)):
+            update_stats_correct()
             playRandomCorrect(AUDIO_LOCN_BASE)
             playPause()
             user_guess = "GO"
-            user_correct = user_correct + 1
         elif user_guess != "" and user_guess != "Q":
+            update_stats_incorrect()
             play_callsign(actual_callsign, speed)
             user_guess = "GUESS"
         else:
-            user_attempts = user_attempts - 1
+            # leaving the game
+            finish_up_stats()
 
     return user_guess
 
@@ -290,7 +305,7 @@ def test_the_game(config):
 
 
 def run_the_game():
-    speed = ""
+    global total_callsigns
     results = ""
     actual_callsign = ""
 
@@ -308,21 +323,125 @@ def run_the_game():
         test_the_game(user_selection)
 
     while results == "GO":
+        update_stats_new_callsign()
         actual_callsign = randomize_callsign()
         play_callsign(actual_callsign, speed)
         results = get_input(actual_callsign, speed)
 
-    # print the last callsign
+    # finish up the game
     print()
     show_stats(actual_callsign)
-    playCorrect_done(AUDIO_LOCN_BASE)
+    play_done(AUDIO_LOCN_BASE)
 
 
-def show_stats(actual_callsign):
-    print("last callsign: " + actual_callsign)
-    print()
-    print("Total callsigns guessed: " + str(user_correct))
-    print("Total attempts made:     " + str(user_attempts))
+    # global total_callsigns
+    # global total_user_guesses
+    # global stats_prefix_size
+    # global stats_suffix_size
+    # global stats_current_callsign
+    # global stats_shortest_guess_streak
+    # global stats_shortest_guess_streak_curr_cnt
+    # global stats_shortest_guess_streak_call
+    # global stats_longest_guess_streak
+    # global stats_longest_guess_streak_curr_cnt
+    # global stats_longest_guess_streak_call
+def set_stats_callsign_size(prefix_size, suffix_size, callsign):
+    global stats_prefix_size
+    global stats_suffix_size
+    global stats_current_callsign
+
+    # set stats
+    stats_prefix_size = prefix_size
+    stats_suffix_size = suffix_size
+    stats_current_callsign = callsign
+
+
+def update_stats_correct():
+    # global total_callsigns
+    global total_user_guesses
+    # global stats_prefix_size
+    # global stats_suffix_size
+    # global stats_current_callsign
+    global stats_shortest_guess_streak
+    global stats_shortest_guess_streak_curr_cnt
+    global stats_shortest_guess_streak_call
+    global stats_longest_guess_streak
+    global stats_longest_guess_streak_curr_cnt
+    global stats_longest_guess_streak_call
+
+    total_user_guesses = total_user_guesses + 1
+    if stats_shortest_guess_streak_curr_cnt < stats_shortest_guess_streak:
+        stats_shortest_guess_streak = stats_shortest_guess_streak_curr_cnt
+        stats_shortest_guess_streak_call = stats_current_callsign
+    if stats_longest_guess_streak_curr_cnt > stats_longest_guess_streak:
+        stats_longest_guess_streak = stats_longest_guess_streak_curr_cnt
+        stats_longest_guess_streak_call = stats_current_callsign
+
+
+def update_stats_incorrect():
+    global total_callsigns
+    global total_user_guesses
+    # global stats_prefix_size
+    # global stats_suffix_size
+    # global stats_shortest_guess_streak
+    global stats_shortest_guess_streak_curr_cnt
+    # global stats_shortest_guess_streak_call
+    # global stats_longest_guess_streak
+    global stats_longest_guess_streak_curr_cnt
+    # global stats_longest_guess_streak_call
+
+    total_user_guesses += 1
+    stats_shortest_guess_streak_curr_cnt += 1
+    stats_longest_guess_streak_curr_cnt += 1
+
+
+def update_stats_new_callsign():
+    global total_callsigns
+    global stats_prefix_size
+    global stats_suffix_size
+    global stats_shortest_guess_streak_curr_cnt
+    global stats_longest_guess_streak_curr_cnt
+
+    total_callsigns += 1
+
+    # reset other stats
+    stats_shortest_guess_streak_curr_cnt = 1
+    stats_longest_guess_streak_curr_cnt = 1
+    stats_prefix_size = 0
+    stats_suffix_size = 0
+
+
+def finish_up_stats():
+    global total_callsigns
+
+    total_callsigns -= 1
+
+
+def show_stats(last_callsign):
+    # Shortest Guess Streak | Fewest guesses for any single callsign
+    # Longest Guess Streak | Most guesses for any single callsign
+    # First Guess Success Rate | % of callsigns guessed correctly on first try
+    # Guess Distribution | Counts of callsigns by number of guesses needed
+
+    pct = 0.0
+    average_guesses = 0
+    first_guess_success = 0
+
+    # pct of g
+    if total_user_guesses > 0:
+        pct = total_callsigns / total_user_guesses * 100
+        # Average Guesses per Callsign | Total guesses divided by total callsigns
+        average_guesses = round(total_user_guesses / total_callsigns, 1)
+        # first_guess_success = callsigns_guessed_first_try / total_callsigns
+
+    print("Total # of callsigns: " + str(total_callsigns))
+    print("Total # of guesses:   " + str(total_user_guesses))
+    print("Avg guesses per callsign:  " + str(average_guesses))
+    print("Shortest Guess Streak:     " + str(stats_shortest_guess_streak) + "  (" + stats_shortest_guess_streak_call + " -- fewest guesses for this callsign)")
+    print("Longest Guess Streak:      " + str(stats_longest_guess_streak) +  "  (" + stats_longest_guess_streak_call + " -- most guesses for this callsign)")
+
+    if last_callsign != "":
+        print("callsign (not guessed): " + last_callsign)
     print()
 
 
@@ -359,6 +478,7 @@ def run_the_test_all_chars(config):
         print("letter-L: " + getLetter(pos) + " " + str(pos))
         playCharacter(getLetter(pos) + "-l", speed)
     print()
+
 
 def run_the_test_rnd_calls(config):
     speed = config.speed

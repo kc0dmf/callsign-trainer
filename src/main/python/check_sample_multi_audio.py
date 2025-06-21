@@ -23,8 +23,8 @@ PAUSE_BETW_LETTERS = 0.15
 MAX_NUM_FIRST_LETTER = 4
 MAX_NUM_ANY_LETTER = 6
 
-user_attempts = 0
-user_correct = 0
+total_user_guesses = 0
+total_callsigns = 0
 
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
@@ -148,8 +148,8 @@ def playCorrect(locn):
 
 
 def get_input(actual_callsign, speed):
-    global user_attempts
-    global user_correct
+    global total_user_guesses
+    global total_callsigns
     user_guess = "GUESS"
     while user_guess == "GUESS":
         user_guess = input("Callsign? ").upper()
@@ -204,8 +204,8 @@ def run_the_game():
     # print the last callsign
     print()
     print(actual_callsign)
-    print("Total callsigns: " + str(user_correct))
-    print("Total attempts:  " + str(user_attempts))
+    print("Total callsigns: " + str(total_callsigns))
+    print("Total attempts:  " + str(total_user_guesses))
 
 
 def main():
