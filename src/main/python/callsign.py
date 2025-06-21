@@ -10,7 +10,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "0.8.0"
+VERSION = "0.8.1"
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_LOCN_FAST = "fast/"
@@ -54,8 +54,20 @@ tempLetterDict = {
 # }
 
 firstLetterDict = {
-    1: 1, 2: 11, 3: 14, 4: 23
+    # Letters allowed to be the first letter in a 1x1, 1x2, 1x3 call are on the left
+    # K, N, W, A, V
+    1: 11, 2: 14, 3: 23, 4: 1, 5: 22
 }
+firstLetter1xDict = {
+    # letters K, N, W
+    1: 11, 2: 14, 3: 23
+}
+firstLetter2xDict = {
+    # NOTE: make sure these keys don't overlap with the other first-letter dictionary
+    # letters A, V
+    4: 1, 5: 22
+}
+firstLetterMergedDict = firstLetter1xDict | firstLetter2xDict
 
 MAX_NUM_FIRST_LETTER = len(firstLetterDict)
 MAX_NUM_ANY_LETTER = len(tempLetterDict)
@@ -72,8 +84,14 @@ def getLetter(pos):
     # return letterDict[pos]
 
 
-def getFirstLetter(pos):
-    return letterDict[firstLetterDict[pos]]
+def getFirstLetter1x(pos):
+    # return first letter for 1x1, 1x2, and 1x3 calls
+    return letterDict[firstLetter1xDict[pos]]
+
+
+def getFirstLetterMerged(pos):
+    # return first letter for 2x1, 2x2, and 2x3 calls
+    return letterDict[firstLetterMergedDict[pos]]
 
 
 def getNumber(pos):
@@ -109,17 +127,26 @@ def randomize_callsign():
     # rndPrefix = 2
     # rndSuffix = 3
 
-    # prefix letter(s)
+    # create prefix letter(s)
     if rndPrefix == 2:
         # allow all first letters
+        MAX_NUM_FIRST_LETTER = len(firstLetterMergedDict)
         rnd = random.randint(1, MAX_NUM_FIRST_LETTER)
-        result += getFirstLetter(rnd)
-        rnd = random.randint(1, MAX_NUM_ANY_LETTER)
+        result += getFirstLetterMerged(rnd)
+        if result == "V":
+            # only allow Canadian calls as VA or VE
+            rnd = random.randint(1, 2)
+            if rnd == 2:
+                # set to "E"
+                rnd = 5
+        else:
+            rnd = random.randint(1, MAX_NUM_ANY_LETTER)
         result += getLetter(rnd)
     else:
-        # exclude A as a first letter
-        rnd = random.randint(2, MAX_NUM_FIRST_LETTER)
-        result += getFirstLetter(rnd)
+        # exclude A and V as a first letter
+        MAX_NUM_FIRST_LETTER = len(firstLetter1xDict)
+        rnd = random.randint(1, MAX_NUM_FIRST_LETTER)
+        result += getFirstLetter1x(rnd)
 
     # number
     rnd = random.randint(0, 9)
@@ -148,16 +175,21 @@ def playCharacter(theChar, locn):
 def play_callsign(callsign, speed):
     size = len(callsign)
     cnt = 1
+    characters_to_play = []
 
+    # build the letters with inflection
     for ele in callsign:
         inflection = "-m"
         if cnt == 1:
             inflection = "-h"
         if cnt == size:
             inflection = "-l"
+        characters_to_play.append(str(ele) + inflection)
         cnt += 1
-        playCharacter(str(ele) + inflection, speed)
 
+    # Now play all characters
+    for char_infl in characters_to_play:
+        playCharacter(char_infl, speed)
 
 def compare(expected, actual):
     return expected == actual
@@ -342,7 +374,6 @@ def run_the_test_rnd_calls(config):
 
 def main():
     run_the_game()
-    # TODO add flag to do only 1x3 calls
 
 
 main()

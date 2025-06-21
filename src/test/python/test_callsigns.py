@@ -5,19 +5,19 @@ from src.main.python import callsign
 # Test first letters
 #
 def test_first_letter_1():
-    assert callsign.getFirstLetter(1) == "A"
+    assert callsign.getFirstLetter1x(1) == "A"
 
 
 def test_first_letter_2():
-    assert callsign.getFirstLetter(2) == "K"
+    assert callsign.getFirstLetter1x(2) == "K"
 
 
 def test_first_letter_3():
-    assert callsign.getFirstLetter(3) == "N"
+    assert callsign.getFirstLetter1x(3) == "N"
 
 
 def test_first_letter_4():
-    assert callsign.getFirstLetter(4) == "W"
+    assert callsign.getFirstLetter1x(4) == "W"
 
 
 #
