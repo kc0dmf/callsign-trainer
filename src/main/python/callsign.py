@@ -10,7 +10,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "0.7.1"
+VERSION = "0.8.0"
 
 AUDIO_LOCN_BASE = "../resource/"
 AUDIO_LOCN_FAST = "fast/"
@@ -28,7 +28,7 @@ MODE_TEST_CHARS = "test chars"
 MODE_TEST_CALLS = "test calls"
 
 PAUSE_SPEED = 750
-PAUSE_BETW_CALLSIGNS = 0.75
+PAUSE_BETW_CALLSIGNS = 0.50
 PAUSE_BETW_LETTERS = 0.10
 
 user_attempts = 0
@@ -43,9 +43,16 @@ letterDict = {
     , 26: "Z"
 }
 
+# Use for fast letters only (until all slow letters exist)
 tempLetterDict = {
-    1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 11, 8: 14, 9: 23
+    i: i for i in range(1, 27)
 }
+
+# Use for slow letters -- comment out for all fast letters
+# tempLetterDict = {
+#     1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 11, 8: 14, 9: 23
+# }
+
 firstLetterDict = {
     1: 1, 2: 11, 3: 14, 4: 23
 }
@@ -156,8 +163,12 @@ def compare(expected, actual):
     return expected == actual
 
 
-def playCorrect(locn):
+def playRandomCorrect(locn):
     rnd = random.randint(1, MAX_CORRECT_MSG)
+    playCorrect(rnd, locn)
+
+
+def playCorrect(rnd, locn):
     filename = locn + "correct-" + str(rnd) + ".wav"
     wave_obj = sa.WaveObject.from_wave_file(filename)
     play_obj = wave_obj.play()
@@ -182,7 +193,7 @@ def get_input(actual_callsign, speed):
         user_guess = input("Callsign? ").upper()
         user_attempts = user_attempts + 1
         if bool(compare(actual_callsign, user_guess)):
-            playCorrect(AUDIO_LOCN_BASE)
+            playRandomCorrect(AUDIO_LOCN_BASE)
             playPause()
             user_guess = "GO"
             user_correct = user_correct + 1
@@ -211,10 +222,10 @@ def get_user_input():
         play_callsign(call, AUDIO_SLOW)
         print("F) Fast (" + call + ")")
         play_callsign(call, AUDIO_FAST)
-        print("TCS) Test slow characters")
-        print("TCF) Test fast characters")
-        print("TRS) Test random slow calls")
-        print("TRF) Test random fast calls")
+        print("SL) Play all slow letters and messages")
+        print("FL) Play all fast letters and messages")
+        print("SC) Play random slow calls")
+        print("FC) Play random fast calls")
         print("Q) Quit")
         print()
 
@@ -223,13 +234,13 @@ def get_user_input():
             result = Config(AUDIO_SLOW, MODE_GAME)
         elif user_selection == "F":
             result = Config(AUDIO_FAST, MODE_GAME)
-        elif user_selection == "TCS":
+        elif user_selection == "SL":
             result = Config(AUDIO_SLOW, MODE_TEST_CHARS)
-        elif user_selection == "TCF":
+        elif user_selection == "FL":
             result = Config(AUDIO_FAST, MODE_TEST_CHARS)
-        elif user_selection == "TRS":
+        elif user_selection == "SC":
             result = Config(AUDIO_SLOW, MODE_TEST_CALLS)
-        elif user_selection == "TRF":
+        elif user_selection == "FC":
             result = Config(AUDIO_FAST, MODE_TEST_CALLS)
         elif user_selection == "Q":
             result = Config(GAME_STOP, MODE_GAME)
@@ -257,7 +268,9 @@ def run_the_game():
     user_selection = get_user_input()
     speed = user_selection.speed
 
-    if user_selection.mode == MODE_GAME:
+    if user_selection.speed == GAME_STOP:
+        results = GAME_STOP
+    elif user_selection.mode == MODE_GAME:
         results = "GO"
     else:
         test_the_game(user_selection)
@@ -284,20 +297,35 @@ def show_stats(actual_callsign):
 def run_the_test_all_chars(config):
     speed = config.speed
     print()
-    # letterDict[tempLetterDict[pos]]
-    for ltr in tempLetterDict:
-        print("letter: " + str(ltr))
-        playCharacter(getLetter(ltr) + "-h", speed)
-    for ltr in tempLetterDict:
-        print("letter: " + str(ltr))
-        playCharacter(getLetter(ltr) + "-m", speed)
-    for ltr in range(0,10):
-        print("number: " + str(ltr))
-        playCharacter(getNumber(ltr) + "-m", speed)
-    for ltr in tempLetterDict:
-        print("letter: " + str(ltr))
-        playCharacter(getLetter(ltr) + "-l", speed)
 
+    # play all Correct messages
+    for pos in range(1, MAX_CORRECT_MSG+1):
+        print("correct: " + str(pos))
+        playCorrect(pos, AUDIO_LOCN_BASE)
+    print()
+
+    # play all Number messages
+    for pos in range(0,10):
+        print("number: " + str(pos))
+        playCharacter(getNumber(pos) + "-m", speed)
+    print()
+
+    # play all Letter-high messages
+    for pos in tempLetterDict:
+        print("letter-H: " + getLetter(pos) + " " + str(pos))
+        playCharacter(getLetter(pos) + "-h", speed)
+    print()
+
+    # play all Letter-mid messages
+    for pos in tempLetterDict:
+        print("letter-M: " + getLetter(pos) + " " + str(pos))
+        playCharacter(getLetter(pos) + "-m", speed)
+    print()
+
+    # play all Letter-low messages
+    for pos in tempLetterDict:
+        print("letter-L: " + getLetter(pos) + " " + str(pos))
+        playCharacter(getLetter(pos) + "-l", speed)
     print()
 
 def run_the_test_rnd_calls(config):
@@ -307,6 +335,7 @@ def run_the_test_rnd_calls(config):
         actual_callsign = randomize_callsign()
         print(actual_callsign)
         play_callsign(actual_callsign, speed)
+        playPause()
 
     print()
 
