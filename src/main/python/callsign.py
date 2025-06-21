@@ -37,12 +37,16 @@ total_user_guesses = 0
 stats_prefix_size = 0
 stats_suffix_size = 0
 stats_current_callsign = ""
-stats_shortest_guess_streak = 1000
-stats_shortest_guess_streak_curr_cnt = 0
+stats_guess_streak_current_count = 0
+START_SHORTEST_GUESS_STREAK_VALUE = 1000
+# Fewest guesses for any single callsign
+stats_shortest_guess_streak = START_SHORTEST_GUESS_STREAK_VALUE
 stats_shortest_guess_streak_call = ""
+# Most guesses for any single callsign
 stats_longest_guess_streak = 0
-stats_longest_guess_streak_curr_cnt = 0
 stats_longest_guess_streak_call = ""
+# Number of callsigns guessed correctly on first try
+stats_first_guess_success = 0
 
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
@@ -128,6 +132,7 @@ def get_prefix_count():
 def randomize_callsign():
     # call signs can be: 1x1, 1x2, 1x3, 2x1, 2x2, 2x3
     result = ""
+    # max_number_first_letter = 0
 
     random.seed(None, 2)
     rndPrefix = get_prefix_count()
@@ -140,8 +145,8 @@ def randomize_callsign():
     # create prefix letter(s)
     if rndPrefix == 2:
         # allow all first letters
-        MAX_NUM_FIRST_LETTER = len(firstLetterMergedDict)
-        rnd = random.randint(1, MAX_NUM_FIRST_LETTER)
+        max_number_first_letter = len(firstLetterMergedDict)
+        rnd = random.randint(1, max_number_first_letter)
         result += getFirstLetterMerged(rnd)
         if result == "V":
             # only allow Canadian calls as VA or VE
@@ -154,8 +159,8 @@ def randomize_callsign():
         result += getLetter(rnd)
     else:
         # exclude A and V as a first letter
-        MAX_NUM_FIRST_LETTER = len(firstLetter1xDict)
-        rnd = random.randint(1, MAX_NUM_FIRST_LETTER)
+        max_number_first_letter = len(firstLetter1xDict)
+        rnd = random.randint(1, max_number_first_letter)
         result += getFirstLetter1x(rnd)
 
     # number
@@ -339,12 +344,12 @@ def run_the_game():
     # global stats_prefix_size
     # global stats_suffix_size
     # global stats_current_callsign
+    # global stats_guess_streak_current_count
     # global stats_shortest_guess_streak
-    # global stats_shortest_guess_streak_curr_cnt
     # global stats_shortest_guess_streak_call
     # global stats_longest_guess_streak
-    # global stats_longest_guess_streak_curr_cnt
     # global stats_longest_guess_streak_call
+    # global stats_first_guess_success_rate
 def set_stats_callsign_size(prefix_size, suffix_size, callsign):
     global stats_prefix_size
     global stats_suffix_size
@@ -362,20 +367,22 @@ def update_stats_correct():
     # global stats_prefix_size
     # global stats_suffix_size
     # global stats_current_callsign
+    global stats_guess_streak_current_count
     global stats_shortest_guess_streak
-    global stats_shortest_guess_streak_curr_cnt
     global stats_shortest_guess_streak_call
     global stats_longest_guess_streak
-    global stats_longest_guess_streak_curr_cnt
     global stats_longest_guess_streak_call
+    global stats_first_guess_success
 
     total_user_guesses = total_user_guesses + 1
-    if stats_shortest_guess_streak_curr_cnt < stats_shortest_guess_streak:
-        stats_shortest_guess_streak = stats_shortest_guess_streak_curr_cnt
+    if stats_guess_streak_current_count < stats_shortest_guess_streak:
+        stats_shortest_guess_streak = stats_guess_streak_current_count
         stats_shortest_guess_streak_call = stats_current_callsign
-    if stats_longest_guess_streak_curr_cnt > stats_longest_guess_streak:
-        stats_longest_guess_streak = stats_longest_guess_streak_curr_cnt
+    if stats_guess_streak_current_count > stats_longest_guess_streak:
+        stats_longest_guess_streak = stats_guess_streak_current_count
         stats_longest_guess_streak_call = stats_current_callsign
+    if stats_guess_streak_current_count == 1:
+        stats_first_guess_success += 1
 
 
 def update_stats_incorrect():
@@ -384,29 +391,25 @@ def update_stats_incorrect():
     # global stats_prefix_size
     # global stats_suffix_size
     # global stats_shortest_guess_streak
-    global stats_shortest_guess_streak_curr_cnt
+    global stats_guess_streak_current_count
     # global stats_shortest_guess_streak_call
     # global stats_longest_guess_streak
-    global stats_longest_guess_streak_curr_cnt
     # global stats_longest_guess_streak_call
 
     total_user_guesses += 1
-    stats_shortest_guess_streak_curr_cnt += 1
-    stats_longest_guess_streak_curr_cnt += 1
+    stats_guess_streak_current_count += 1
 
 
 def update_stats_new_callsign():
     global total_callsigns
     global stats_prefix_size
     global stats_suffix_size
-    global stats_shortest_guess_streak_curr_cnt
-    global stats_longest_guess_streak_curr_cnt
+    global stats_guess_streak_current_count
 
     total_callsigns += 1
 
     # reset other stats
-    stats_shortest_guess_streak_curr_cnt = 1
-    stats_longest_guess_streak_curr_cnt = 1
+    stats_guess_streak_current_count = 1
     stats_prefix_size = 0
     stats_suffix_size = 0
 
@@ -418,30 +421,32 @@ def finish_up_stats():
 
 
 def show_stats(last_callsign):
-    # Shortest Guess Streak | Fewest guesses for any single callsign
-    # Longest Guess Streak | Most guesses for any single callsign
+    global stats_shortest_guess_streak
     # First Guess Success Rate | % of callsigns guessed correctly on first try
     # Guess Distribution | Counts of callsigns by number of guesses needed
 
-    pct = 0.0
-    average_guesses = 0
-    first_guess_success = 0
+    average_guesses_per_callsign = 0
+    first_guess_success_rate = 0
 
-    # pct of g
+    # if no guesses then set the shortest guess streak to zero
+    if stats_shortest_guess_streak == START_SHORTEST_GUESS_STREAK_VALUE:
+        stats_shortest_guess_streak = 0
+
     if total_user_guesses > 0:
-        pct = total_callsigns / total_user_guesses * 100
-        # Average Guesses per Callsign | Total guesses divided by total callsigns
-        average_guesses = round(total_user_guesses / total_callsigns, 1)
-        # first_guess_success = callsigns_guessed_first_try / total_callsigns
+        average_guesses_per_callsign = round(total_user_guesses / total_callsigns, 1)
+        first_guess_success_rate = round(stats_first_guess_success / total_callsigns * 100, 1)
 
-    print("Total # of callsigns: " + str(total_callsigns))
-    print("Total # of guesses:   " + str(total_user_guesses))
-    print("Avg guesses per callsign:  " + str(average_guesses))
-    print("Shortest Guess Streak:     " + str(stats_shortest_guess_streak) + "  (" + stats_shortest_guess_streak_call + " -- fewest guesses for this callsign)")
-    print("Longest Guess Streak:      " + str(stats_longest_guess_streak) +  "  (" + stats_longest_guess_streak_call + " -- most guesses for this callsign)")
-
+    print("Total # callsigns given:      " + str(total_callsigns))
+    print("Total guesses taken:          " + str(total_user_guesses))
+    print("Avg guesses per callsign:     " + str(average_guesses_per_callsign))
+    print("First guess correct:          " + str(stats_first_guess_success))
+    print("First guess success rate:     " + str(first_guess_success_rate) +    "%")
+    print("Shortest Guess Streak:        " + str(stats_shortest_guess_streak) + "  (fewest guesses for this callsign: " + stats_shortest_guess_streak_call + ")")
+    print("Longest Guess Streak:         " + str(stats_longest_guess_streak) +  "  (most guesses for this callsign: " + stats_longest_guess_streak_call + ")")
+    # lining up next print with above print()
+    #    ("Last callsign (not guessed):  " + last_callsign)
     if last_callsign != "":
-        print("callsign (not guessed): " + last_callsign)
+        print("Last callsign (not guessed):  " + last_callsign)
     print()
 
 
