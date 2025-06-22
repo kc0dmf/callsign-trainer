@@ -10,43 +10,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "0.8.2"
-
-AUDIO_LOCN_BASE = "../resource/"
-AUDIO_LOCN_FAST = "fast/"
-AUDIO_LOCN_SLOW = "slow/"
-
-AUDIO_FAST = AUDIO_LOCN_BASE + AUDIO_LOCN_FAST
-AUDIO_SLOW = AUDIO_LOCN_BASE + AUDIO_LOCN_SLOW
-GAME_STOP = "stop"
-GAME_TEST_CHARS_SLOW = "test chars slow"
-GAME_TEST_CHARS_FAST = "test chars fast"
-GAME_TEST_CALLS_SLOW = "test calls slow"
-GAME_TEST_CALLS_FAST = "test calls fast"
-MODE_GAME = "game"
-MODE_TEST_CHARS = "test chars"
-MODE_TEST_CALLS = "test calls"
-
-PAUSE_SPEED = 750
-PAUSE_BETW_CALLSIGNS = 0.50
-PAUSE_BETW_LETTERS = 0.10
-
-# Statistic variables
-total_callsigns = 0
-total_user_guesses = 0
-stats_prefix_size = 0
-stats_suffix_size = 0
-stats_current_callsign = ""
-stats_guess_streak_current_count = 0
-START_SHORTEST_GUESS_STREAK_VALUE = 1000
-# Fewest guesses for any single callsign
-stats_shortest_guess_streak = START_SHORTEST_GUESS_STREAK_VALUE
-stats_shortest_guess_streak_call = ""
-# Most guesses for any single callsign
-stats_longest_guess_streak = 0
-stats_longest_guess_streak_call = ""
-# Number of callsigns guessed correctly on first try
-stats_first_guess_success = 0
+VERSION = "0.8.5"
 
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
@@ -83,9 +47,59 @@ firstLetter2xDict = {
 }
 firstLetterMergedDict = firstLetter1xDict | firstLetter2xDict
 
+# Initialize histogram
+guesses_per_type_hist = {
+    "1x1": {},
+    "1x2": {},
+    "1x3": {},
+    "2x1": {},
+    "2x2": {},
+    "2x3": {}
+}
+# For example, this means that the 2x3 calls had 5 guesses on the first try, and 1 guess on the 4th try.
+# {'1x1': {}, '1x2': {}, '1x3': {}, '2x1': {}, '2x2': {}, '2x3': {1: 5, 4: 1}}
+
+
+AUDIO_LOCN_BASE = "../resource/"
+AUDIO_LOCN_FAST = "fast/"
+AUDIO_LOCN_SLOW = "slow/"
+
+AUDIO_FAST = AUDIO_LOCN_BASE + AUDIO_LOCN_FAST
+AUDIO_SLOW = AUDIO_LOCN_BASE + AUDIO_LOCN_SLOW
+GAME_STOP = "stop"
+GAME_GO = "GO"
+GAME_GUESS = "GUESS"
+GAME_TEST_CHARS_SLOW = "test chars slow"
+GAME_TEST_CHARS_FAST = "test chars fast"
+GAME_TEST_CALLS_SLOW = "test calls slow"
+GAME_TEST_CALLS_FAST = "test calls fast"
+MODE_GAME = "game"
+MODE_TEST_CHARS = "test chars"
+MODE_TEST_CALLS = "test calls"
+
+PAUSE_SPEED = 750
+PAUSE_BETW_CALLSIGNS = 0.50
+PAUSE_BETW_LETTERS = 0.10
+
 MAX_NUM_FIRST_LETTER = len(firstLetterDict)
 MAX_NUM_ANY_LETTER = len(tempLetterDict)
 MAX_CORRECT_MSG = 8
+
+# Statistic variables
+total_callsigns = 0
+total_user_guesses = 0
+stats_callsign_type = "0x0"
+stats_current_callsign = ""
+stats_guess_streak_current_count = 0
+START_SHORTEST_GUESS_STREAK_VALUE = 1000
+# Fewest guesses for any single callsign
+stats_shortest_guess_streak = START_SHORTEST_GUESS_STREAK_VALUE
+stats_shortest_guess_streak_call = ""
+# Most guesses for any single callsign
+stats_longest_guess_streak = 0
+stats_longest_guess_streak_call = ""
+# Number of callsigns guessed correctly on first try
+stats_first_guess_success = 0
 
 class Config:
     def __init__(self, speed, mode):
@@ -121,11 +135,16 @@ def playLetterPause():
     time.sleep(PAUSE_BETW_LETTERS)
 
 
-def get_suffix_count():
-    return random.randint(1, 3)
+def get_suffix_size():
+    # lessen a chance of a 1 being returned
+    # 1->1, 2->2, 3->3, 4->(4-2)=2, 5->(5-2)=3
+    rnd = random.randint(1, 5)
+    if rnd > 3:
+        rnd -= 2
+    return rnd
 
 
-def get_prefix_count():
+def get_prefix_size():
     return random.randint(1, 2)
 
 
@@ -135,8 +154,8 @@ def randomize_callsign():
     # max_number_first_letter = 0
 
     random.seed(None, 2)
-    rndPrefix = get_prefix_count()
-    rndSuffix = get_suffix_count()
+    rndPrefix = get_prefix_size()
+    rndSuffix = get_suffix_size()
 
     # NOTE: this will force to be 1x3, 2x3, etc
     # rndPrefix = 2
@@ -168,12 +187,9 @@ def randomize_callsign():
     result += getNumber(rnd)
 
     # suffix letters
-    while rndSuffix > 1:
+    for _ in range(rndSuffix):
         rnd = random.randint(1, MAX_NUM_ANY_LETTER)
         result += getLetter(rnd)
-        rndSuffix = rndSuffix - 1
-    rnd = random.randint(1, MAX_NUM_ANY_LETTER)
-    result += getLetter(rnd)
 
     # set stats
     set_stats_callsign_size(rndPrefix, rndSuffix, result)
@@ -238,19 +254,22 @@ def play_done(locn):
 def get_input(actual_callsign, speed):
     global total_callsigns
     global total_user_guesses
-    user_guess = "GUESS"
+    user_guess = GAME_GUESS
 
-    while user_guess == "GUESS":
-        user_guess = input("Callsign? ").upper()
+    while user_guess == GAME_GUESS:
+        prompt = str(total_callsigns) + " Callsign? "
+        if total_callsigns < 10:
+            prompt = "0" + prompt
+        user_guess = input(prompt).upper()
         if bool(compare(actual_callsign, user_guess)):
             update_stats_correct()
             playRandomCorrect(AUDIO_LOCN_BASE)
             playPause()
-            user_guess = "GO"
+            user_guess = GAME_GO
         elif user_guess != "" and user_guess != "Q":
             update_stats_incorrect()
             play_callsign(actual_callsign, speed)
-            user_guess = "GUESS"
+            user_guess = GAME_GUESS
         else:
             # leaving the game
             finish_up_stats()
@@ -323,11 +342,11 @@ def run_the_game():
     if user_selection.speed == GAME_STOP:
         results = GAME_STOP
     elif user_selection.mode == MODE_GAME:
-        results = "GO"
+        results = GAME_GO
     else:
         test_the_game(user_selection)
 
-    while results == "GO":
+    while results == GAME_GO:
         update_stats_new_callsign()
         actual_callsign = randomize_callsign()
         play_callsign(actual_callsign, speed)
@@ -336,37 +355,25 @@ def run_the_game():
     # finish up the game
     print()
     show_stats(actual_callsign)
-    play_done(AUDIO_LOCN_BASE)
+
+    return results
 
 
-    # global total_callsigns
-    # global total_user_guesses
-    # global stats_prefix_size
-    # global stats_suffix_size
-    # global stats_current_callsign
-    # global stats_guess_streak_current_count
-    # global stats_shortest_guess_streak
-    # global stats_shortest_guess_streak_call
-    # global stats_longest_guess_streak
-    # global stats_longest_guess_streak_call
-    # global stats_first_guess_success_rate
 def set_stats_callsign_size(prefix_size, suffix_size, callsign):
-    global stats_prefix_size
-    global stats_suffix_size
+    global stats_callsign_type
     global stats_current_callsign
 
     # set stats
-    stats_prefix_size = prefix_size
-    stats_suffix_size = suffix_size
+    stats_callsign_type = str(prefix_size)+"x"+str(suffix_size)
     stats_current_callsign = callsign
+
+    # Debug. Example: 1x3: N9ABC
+    # print(stats_callsign_type+": "+callsign)
 
 
 def update_stats_correct():
-    # global total_callsigns
     global total_user_guesses
-    # global stats_prefix_size
-    # global stats_suffix_size
-    # global stats_current_callsign
+    global stats_callsign_type
     global stats_guess_streak_current_count
     global stats_shortest_guess_streak
     global stats_shortest_guess_streak_call
@@ -384,17 +391,13 @@ def update_stats_correct():
     if stats_guess_streak_current_count == 1:
         stats_first_guess_success += 1
 
+    guesses_per_type_hist[stats_callsign_type][stats_guess_streak_current_count] = guesses_per_type_hist[stats_callsign_type].get(stats_guess_streak_current_count, 0) + 1
+
 
 def update_stats_incorrect():
     global total_callsigns
     global total_user_guesses
-    # global stats_prefix_size
-    # global stats_suffix_size
-    # global stats_shortest_guess_streak
     global stats_guess_streak_current_count
-    # global stats_shortest_guess_streak_call
-    # global stats_longest_guess_streak
-    # global stats_longest_guess_streak_call
 
     total_user_guesses += 1
     stats_guess_streak_current_count += 1
@@ -402,16 +405,13 @@ def update_stats_incorrect():
 
 def update_stats_new_callsign():
     global total_callsigns
-    global stats_prefix_size
-    global stats_suffix_size
     global stats_guess_streak_current_count
 
     total_callsigns += 1
 
     # reset other stats
     stats_guess_streak_current_count = 1
-    stats_prefix_size = 0
-    stats_suffix_size = 0
+    stats_callsign_type = "0x0"
 
 
 def finish_up_stats():
@@ -422,7 +422,6 @@ def finish_up_stats():
 
 def show_stats(last_callsign):
     global stats_shortest_guess_streak
-    # First Guess Success Rate | % of callsigns guessed correctly on first try
     # Guess Distribution | Counts of callsigns by number of guesses needed
 
     average_guesses_per_callsign = 0
@@ -448,6 +447,23 @@ def show_stats(last_callsign):
     if last_callsign != "":
         print("Last callsign (not guessed):  " + last_callsign)
     print()
+
+    print_histogram(guesses_per_type_hist)
+
+
+def print_histogram(p_histogram):
+    print("Distribution:")
+    print()
+    for ctype, counts in p_histogram.items():
+        if counts:  # Only proceed if not empty
+            total = sum(counts.values())
+            print()
+            print(f"{ctype}: {total} call(s)")
+            max_guess = max(counts) if counts else 1
+            for n in range(1, max_guess + 1):
+                print(f"{n}: {'X' * counts.get(n, 0)}")
+    print()
+
 
 
 def run_the_test_all_chars(config):
@@ -498,7 +514,9 @@ def run_the_test_rnd_calls(config):
 
 
 def main():
-    run_the_game()
-
+    results = GAME_GO
+    while results != GAME_STOP and results != "":
+        results = run_the_game()
+    play_done(AUDIO_LOCN_BASE)
 
 main()

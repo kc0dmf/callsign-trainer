@@ -49,14 +49,14 @@ def test_letter_06():
 
 def test_get_suffix_count():
     for i in range(1, 50):
-        val = callsign.get_suffix_count()
+        val = callsign.get_suffix_size()
         if val < 1 or val > 3:
             assert val == 0
 
 
 def test_get_prefix_count():
     for i in range(1, 50):
-        val = callsign.get_prefix_count()
+        val = callsign.get_prefix_size()
         if val < 1 or val > 2:
             assert val == 0
 
