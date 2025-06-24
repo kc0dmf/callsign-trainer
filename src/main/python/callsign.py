@@ -26,7 +26,10 @@ tempLetterDict = {
     i: i for i in range(1, 27)
 }
 
-# Use for slow letters -- comment out for all fast letters
+# UNCOMMENT ME: to stick to only the subset audio files for Slow letters.
+# Not all the audio files exist yet for slow letters.
+# You uncomment this to play either fast or slow letters.
+# COMMENT OUT: to stick to all letters that are fast letters.
 # tempLetterDict = {
 #     1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 11, 8: 14, 9: 23
 # }
@@ -157,7 +160,8 @@ def randomize_callsign():
     rndPrefix = get_prefix_size()
     rndSuffix = get_suffix_size()
 
-    # NOTE: this will force to be 1x3, 2x3, etc
+    # UNCOMMENT ME: to keep all callsigns as 2x3 callsigns.
+    # Note: you can change this to be 1x3, 2x2, etc.
     # rndPrefix = 2
     # rndSuffix = 3
 
