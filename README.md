@@ -212,6 +212,8 @@ Effect -> Fading -> Fade out
 ## History of Changes
 [Return to top](#return-to-top)
 
+* In version (0.9.x), this application will play all Fast letters (Fast Mode) and Slow Letters (Slow Mode).
+  This fixes Issue #11.
 * In version (0.8.x), this application will play all Fast letters (Fast
   Mode) and **will crash** if you attempt to play this in Slow Mode. To make
   slow mode work:
