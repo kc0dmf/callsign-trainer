@@ -334,7 +334,7 @@ def get_input(actual_callsign, speed):
 
 
 def get_user_input():
-    call = "KA0XTT"
+    call = "K0XT"
     user_selection = ""
     result = ""
 
@@ -410,7 +410,6 @@ def run_the_game():
         results = get_input(actual_callsign, speed)
 
     # finish up the game
-    print()
     show_stats(actual_callsign)
 
     return results
@@ -488,6 +487,10 @@ def show_stats(last_callsign):
     global stats_shortest_guess_streak_call
     global stats_longest_guess_streak_call
 
+    if total_user_guesses == 0:
+        # no stats to show
+        return
+
     if logging.getLogger().isEnabledFor(logging.DEBUG):
         # Debugging is enabled
         logging.debug("debug stats")
@@ -500,17 +503,14 @@ def show_stats(last_callsign):
         stats_longest_guess_streak_call = "WT7XYB"
         last_callsign = "KA0XTT"
 
-    calc_average_guesses_per_callsign = 0
-    calc_first_guess_success_rate = 0
-
     # if no guesses then set the shortest guess streak to zero
     if stats_shortest_guess_streak == START_SHORTEST_GUESS_STREAK_VALUE:
         stats_shortest_guess_streak = 0
 
-    if total_user_guesses > 0:
-        calc_average_guesses_per_callsign = round(total_user_guesses / total_callsigns, 1)
-        calc_first_guess_success_rate = round(stats_first_guess_success / total_callsigns * 100, 1)
+    calc_average_guesses_per_callsign = round(total_user_guesses / total_callsigns, 1)
+    calc_first_guess_success_rate = round(stats_first_guess_success / total_callsigns * 100, 1)
 
+    print()
     print()
     print("Statistics:")
     print("-----------")
