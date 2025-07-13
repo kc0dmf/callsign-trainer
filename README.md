@@ -2,12 +2,9 @@
 
 Ham radio callsign trainer.
 
-# Table of Contents
-> [!TODO]  
-> TODO: Need to do TOC.  
-> TODO: Need to test links on README.  
-
 <a id="return-to-top"></a>
+# Table of Contents
+
 - [Current Status](#current-status)
 - [How To Install](#how-to-install)
 - [How To Run](#how-to-run)
@@ -24,8 +21,8 @@ Ham radio callsign trainer.
 # Current Status
 [Return to top](#return-to-top)  
 
-* In the current version (0.9.x), this application will play all Fast letters (Fast 
-  Mode) and Slow Letters (Slow Mode). This fixes Issue #11.
+* In the current version (0.9.x), this application will play all Fast letters (Fast Mode) and Slow Letters (Slow Mode).
+  This fixes Issue #11.
 * You can change the code to stick to only one format of callsign (1x3, 2x3, etc.).
   * Find "UNCOMMENT ME:" in the code discussing callsign formats.
   * Uncomment the variables that will force the callsign to be of a particular format.
