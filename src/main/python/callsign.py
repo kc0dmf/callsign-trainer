@@ -3,6 +3,8 @@
 import random
 import time
 import simpleaudio as sa
+import logging
+
 
 # Python environment
 # python3 -m venv /path/to/new/virtual/environment
@@ -10,7 +12,7 @@ import simpleaudio as sa
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "0.8.5"
+VERSION = "0.9.1"
 
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
@@ -26,11 +28,12 @@ tempLetterDict = {
     i: i for i in range(1, 27)
 }
 
-# UNCOMMENT ME: to stick to only the subset audio files for Slow letters.
-# Not all the audio files exist yet for slow letters.
-# You uncomment this to play either fast or slow letters.
+# UNCOMMENT ME: to stick to only a subset of audio files for letters.
+# You uncomment this to play a subset of either fast or slow letters.
 # COMMENT OUT: to stick to all letters that are fast letters.
+# See also: getLetter()
 # tempLetterDict = {
+#        A     B     C     D     E     F     K      N      W
 #     1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 11, 8: 14, 9: 23
 # }
 
@@ -49,18 +52,6 @@ firstLetter2xDict = {
     4: 1, 5: 22
 }
 firstLetterMergedDict = firstLetter1xDict | firstLetter2xDict
-
-# Initialize histogram
-guesses_per_type_hist = {
-    "1x1": {},
-    "1x2": {},
-    "1x3": {},
-    "2x1": {},
-    "2x2": {},
-    "2x3": {}
-}
-# For example, this means that the 2x3 calls had 5 guesses on the first try, and 1 guess on the 4th try.
-# {'1x1': {}, '1x2': {}, '1x3': {}, '2x1': {}, '2x2': {}, '2x3': {1: 5, 4: 1}}
 
 
 AUDIO_LOCN_BASE = "../resource/"
@@ -104,14 +95,75 @@ stats_longest_guess_streak_call = ""
 # Number of callsigns guessed correctly on first try
 stats_first_guess_success = 0
 
+# Initialize histogram
+# For example, this means that the 2x3 calls had 5 guesses on the first try, and 1 guess on the 4th try.
+# {'1x1': {}, '1x2': {}, '1x3': {}, '2x1': {}, '2x2': {}, '2x3': {1: 5, 4: 1}}
+guesses_per_type_hist = {
+    "1x1": {},
+    "1x2": {},
+    "1x3": {},
+    "2x1": {},
+    "2x2": {},
+    "2x3": {}
+}
+
+
 class Config:
     def __init__(self, speed, mode):
         self.speed = speed
         self.mode = mode
 
+
+def init_stats():
+    # Statistic variables
+    global total_callsigns
+    global total_user_guesses
+    global stats_callsign_type
+    global stats_current_callsign
+    global stats_guess_streak_current_count
+    global START_SHORTEST_GUESS_STREAK_VALUE
+    # Fewest guesses for any single callsign
+    global stats_shortest_guess_streak
+    global stats_shortest_guess_streak_call
+    # Most guesses for any single callsign
+    global stats_longest_guess_streak
+    global stats_longest_guess_streak_call
+    # Number of callsigns guessed correctly on first try
+    global stats_first_guess_success
+    # histogram
+    global guesses_per_type_hist
+
+    # Statistic variables
+    total_callsigns = 0
+    total_user_guesses = 0
+    stats_callsign_type = "0x0"
+    stats_current_callsign = ""
+    stats_guess_streak_current_count = 0
+    START_SHORTEST_GUESS_STREAK_VALUE = 1000
+    # Fewest guesses for any single callsign
+    stats_shortest_guess_streak = START_SHORTEST_GUESS_STREAK_VALUE
+    stats_shortest_guess_streak_call = ""
+    # Most guesses for any single callsign
+    stats_longest_guess_streak = 0
+    stats_longest_guess_streak_call = ""
+    # Number of callsigns guessed correctly on first try
+    stats_first_guess_success = 0
+
+    guesses_per_type_hist = {
+        "1x1": {},
+        "1x2": {},
+        "1x3": {},
+        "2x1": {},
+        "2x2": {},
+        "2x3": {}
+    }
+
+
 def getLetter(pos):
+    # This (tempLetterDict) allows us to use the game when only a partial set
+    # of audio clips are available.
     return letterDict[tempLetterDict[pos]]
-    # TODO: fix
+    # Otherwise, could use this if we remove all references to tempLetterDict.
     # return letterDict[pos]
 
 
@@ -282,7 +334,7 @@ def get_input(actual_callsign, speed):
 
 
 def get_user_input():
-    call = "N9ABC"
+    call = "KA0XTT"
     user_selection = ""
     result = ""
 
@@ -340,6 +392,7 @@ def run_the_game():
     print()
     print("Callsign Trainer v" + VERSION)
 
+    init_stats()
     user_selection = get_user_input()
     speed = user_selection.speed
 
@@ -372,7 +425,7 @@ def set_stats_callsign_size(prefix_size, suffix_size, callsign):
     stats_current_callsign = callsign
 
     # Debug. Example: 1x3: N9ABC
-    # print(stats_callsign_type+": "+callsign)
+    logging.debug(stats_callsign_type+": "+callsign)
 
 
 def update_stats_correct():
@@ -424,26 +477,49 @@ def finish_up_stats():
     total_callsigns -= 1
 
 
+# Distribution of Guesses | Counts of callsigns by number of guesses needed
 def show_stats(last_callsign):
     global stats_shortest_guess_streak
-    # Guess Distribution | Counts of callsigns by number of guesses needed
+    global total_user_guesses
+    global total_callsigns
+    global stats_first_guess_success
+    global stats_shortest_guess_streak
+    global stats_longest_guess_streak
+    global stats_shortest_guess_streak_call
+    global stats_longest_guess_streak_call
 
-    average_guesses_per_callsign = 0
-    first_guess_success_rate = 0
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        # Debugging is enabled
+        logging.debug("debug stats")
+        total_callsigns = 50
+        total_user_guesses = 59
+        stats_first_guess_success = 42
+        stats_shortest_guess_streak = 1
+        stats_shortest_guess_streak_call = "AD3XQU"
+        stats_longest_guess_streak = 3
+        stats_longest_guess_streak_call = "WT7XYB"
+        last_callsign = "KA0XTT"
+
+    calc_average_guesses_per_callsign = 0
+    calc_first_guess_success_rate = 0
 
     # if no guesses then set the shortest guess streak to zero
     if stats_shortest_guess_streak == START_SHORTEST_GUESS_STREAK_VALUE:
         stats_shortest_guess_streak = 0
 
     if total_user_guesses > 0:
-        average_guesses_per_callsign = round(total_user_guesses / total_callsigns, 1)
-        first_guess_success_rate = round(stats_first_guess_success / total_callsigns * 100, 1)
+        calc_average_guesses_per_callsign = round(total_user_guesses / total_callsigns, 1)
+        calc_first_guess_success_rate = round(stats_first_guess_success / total_callsigns * 100, 1)
 
+    print()
+    print("Statistics:")
+    print("-----------")
+    print()
     print("Total # callsigns given:      " + str(total_callsigns))
     print("Total guesses taken:          " + str(total_user_guesses))
-    print("Avg guesses per callsign:     " + str(average_guesses_per_callsign))
+    print("Avg guesses per callsign:     " + str(calc_average_guesses_per_callsign))
     print("First guess correct:          " + str(stats_first_guess_success))
-    print("First guess success rate:     " + str(first_guess_success_rate) +    "%")
+    print("First guess success rate:     " + str(calc_first_guess_success_rate) + "%")
     print("Shortest Guess Streak:        " + str(stats_shortest_guess_streak) + "  (fewest guesses for this callsign: " + stats_shortest_guess_streak_call + ")")
     print("Longest Guess Streak:         " + str(stats_longest_guess_streak) +  "  (most guesses for this callsign: " + stats_longest_guess_streak_call + ")")
     # lining up next print with above print()
@@ -456,8 +532,24 @@ def show_stats(last_callsign):
 
 
 def print_histogram(p_histogram):
-    print("Distribution:")
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        # Debugging is enabled
+        logging.debug("debug histogram")
+        # histogram is: dict_items([('1x1', {}), ('1x2', {1: 7, 3: 3}), ('1x3', {3: 8}), ('2x1', {1: 4, 2: 6, 3: 1}), ('2x2', {1: 9}), ('2x3', {1: 2, 2: 2, 3: 2, 4: 4})])
+        p_histogram = {
+            '1x1': {},
+            '1x2': {1: 7, 3: 3},
+            '1x3': {3: 8},
+            '2x1': {1: 4, 2: 6, 3: 1},
+            '2x2': {1: 9},
+            '2x3': {1: 2, 2: 2, 3: 2, 4: 4}
+        }
+
+    logging.debug("histogram is: "+str(p_histogram.items()))
+
     print()
+    print("Distribution:")
+    print("-------------")
     for ctype, counts in p_histogram.items():
         if counts:  # Only proceed if not empty
             total = sum(counts.values())
@@ -465,7 +557,20 @@ def print_histogram(p_histogram):
             print(f"{ctype}: {total} call(s)")
             max_guess = max(counts) if counts else 1
             for n in range(1, max_guess + 1):
-                print(f"{n}: {'X' * counts.get(n, 0)}")
+                pctCorrect = round(counts.get(n, 0) / total * 100)
+                if n==1:
+                    suffix = "st guess"
+                elif n==2:
+                    suffix = "nd guess"
+                elif n==3:
+                    suffix = "rd guess"
+                else:
+                    suffix = "th guess"
+
+                if (counts.get(n, 0) == 0):
+                    print(f"{n}{suffix}: ({pctCorrect}%)")
+                else:
+                    print(f"{n}{suffix}: {'X' * counts.get(n, 0)} ({pctCorrect}%)")
     print()
 
 
@@ -518,6 +623,11 @@ def run_the_test_rnd_calls(config):
 
 
 def main():
+    # turn on for debugging
+    # logging.basicConfig(level=logging.DEBUG)
+    # debug - should not comment out next line
+    logging.debug("Debugging is turned on")
+
     results = GAME_GO
     while results != GAME_STOP and results != "":
         results = run_the_game()
