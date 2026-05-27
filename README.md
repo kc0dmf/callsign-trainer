@@ -11,6 +11,7 @@ Ham radio callsign trainer.
 - [Introduction](#introduction)
   - [Why Did I Build This](#why-did-i-build-this)
   - [Inflection Makes This Special](#inflection-makes-this-special)
+- [License](#license)
 - [Addendum](#addendum)
   - [The Confession](#the-confession)
   - [How To Customize The Audios](#how-to-customize-the-audios)
@@ -143,6 +144,15 @@ This application uses 3 recordings of each letter (one for a high tone, one for 
 mid tone, and one for a low). Each digit uses just 1 recording (for a mid tone).
 
 Note: This feature was included in the original program!
+
+
+<a id="license"></a>
+# License
+[Return to top](#return-to-top)
+
+This project is licensed under the MIT License—see the [LICENSE](LICENSE) file for details.
+
+**Note on Audio Files:** The Python source code is licensed under the MIT License. The voice recordings (audio files) are © craigpl and are included for use with this software.
 
 
 <a id="addendum"></a>
