@@ -34,57 +34,121 @@ Ham radio callsign trainer.
 # How To Install
 [Return to top](#return-to-top)
 
-You will need to download this application and put it in to some directory.
-Then, install Python and a Python environment that you will use to run the program.
+## Requirements
 
-> [!TODO]  
-> TODO: How to install python environment?
-> TODO: Specify requirements (minimal requirements, only Python and SimpleAudio)
+* Python 3.x
+* simpleaudio
 
-`$ pip3 install simpleaudio`
+## Installation Steps
 
-Personal notes: I got this to work running on:
-* IntelliJ on a Macbook Pro
-* a Raspberry Pi
+### 1. Download the Project
+Clone or download this repository to your local machine.
 
-It's untested in Windows but this program should work in any Python environment.
+### 2. Create a Python Virtual Environment
+
+Navigate to the project directory and create a virtual environment:
+
+```bash
+python3 -m venv .venv
+```
+
+### 3. Activate the Virtual Environment
+
+**On Mac/Linux:**
+```bash
+source .venv/bin/activate
+```
+
+**On Windows (Command Prompt):**
+```bash
+.venv\Scripts\activate
+```
+
+**On Windows (PowerShell):**
+```bash
+.venv\Scripts\Activate.ps1
+```
+
+You should see `(.venv)` appear at the beginning of your terminal prompt when the environment is activated.
+
+### 4. Install Dependencies
+
+With the virtual environment activated, install the required package:
+
+```bash
+pip3 install simpleaudio
+```
+
+### 5. Deactivate the Virtual Environment (when done)
+
+```bash
+deactivate
+```
+
+## Tested Platforms
+
+This application has been tested and works on:
+* macOS (Macbook Pro with IntelliJ)
+* Raspberry Pi
+
+It should work in any Python 3 environment, including Windows, though it hasn't been fully tested on Windows yet.
 
 
 <a id="how-to-run"></a>
-# How To Run:
+# How To Run
 [Return to top](#return-to-top)
 
-> [!TODO]  
-> TODO: Need to verify the following instructions are correct.
+### 1. Activate the Virtual Environment
 
+Make sure you're in the project directory, then activate the virtual environment:
 
-## Command Line:
-`$ (do something to activate the python environment)`  
-`$ cd ./src/main/python`  
-`$ python3 callsign.py`
+**On Mac/Linux:**
+```bash
+source .venv/bin/activate
+```
 
+**On Windows (Command Prompt):**
+```bash
+.venv\Scripts\activate
+```
 
-## IntelliJ
-`$ (activate the environment)`  
-`Open the IntelliJ terminal`  
-`If you don't see "(.venv)" on the prompt, do:`  
-`$ cd ./.venv/bin && ./activate`  
-`$ pip3 install <my-package>` (like simpleaudio)
+**On Windows (PowerShell):**
+```bash
+.venv\Scripts\Activate.ps1
+```
 
-To create a python environment:  
-`$ python -m venv [directory]`  
---> NOTE: I think the env is in the project's directory: callsign-trainer/env
-or callsign-trainer/.env or callsign-trainer/.venv
+Look for `(.venv)` at the beginning of your terminal prompt to confirm it's activated.
 
-To activate the python environment:  
-`$ source [directory]/.venv/bin/activate`
+### 2. Navigate to the Source Directory
 
-To deactivate the python environment:  
-`$ deactivate`
+```bash
+cd src/main/python
+```
 
-To remove the python environment (almost never need to do this):  
-`$ deactivate`  
-`$ rm [directory]`
+### 3. Run the Application
+
+```bash
+python3 callsign.py
+```
+
+### Using IntelliJ IDE
+
+1. Open the project in IntelliJ
+2. Open the IntelliJ terminal (View → Tool Windows → Terminal)
+3. If you don't see `(.venv)` in the prompt, activate the environment:
+   ```bash
+   source .venv/bin/activate
+   ```
+4. Navigate to the source directory:
+   ```bash
+   cd src/main/python
+   ```
+5. Run the application:
+   ```bash
+   python3 callsign.py
+   ```
+
+Alternatively, you can right-click on `callsign.py` in IntelliJ and select "Run".
 
 
 <a id="introduction"></a>
