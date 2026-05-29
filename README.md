@@ -218,7 +218,7 @@ Note: This feature was included in the original program!
 
 This project is licensed under the MIT License—see the [LICENSE](LICENSE) file for details.
 
-**Note on Audio Files:** The Python source code is licensed under the MIT License. The voice recordings (audio files) are © craigpl and are included for use with this software.
+**Note on Audio Files:** The Python source code is licensed under the MIT License. The voice recordings (audio files) are © kc0dmf and are included for use with this software.
 
 
 <a id="addendum"></a>
