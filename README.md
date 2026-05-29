@@ -165,6 +165,8 @@ is generated.
 
 When you finish, you will be given some statistics to show how well you did.
 
+For now, the _Callsign Trainer_ only does US and Canadian call signs.
+
 
 <a id="why-did-i-build-this"></a>
 ## Why Did I Build This
