@@ -23,6 +23,7 @@ For now, the _Callsign Trainer_ only does US and Canadian call signs.
   - [Inflection Makes This Special](#inflection-makes-this-special)
 - [License](#license)
 - [Addendum](#addendum)
+  - [Note on Contributing](#note)
   - [The Confession](#the-confession)
   - [How To Customize The Audios](#how-to-customize-the-audios)
   - [History of Changes](#history-of-changes)
@@ -223,10 +224,11 @@ This project is licensed under the MIT License—see the [LICENSE](LICENSE) file
 [Return to top](#return-to-top)
 
 <a id="note"></a>
-## Note
+## Note on Contributing
+[Return to top](#return-to-top)
+
 This is my first public repository. I may not check for comments or issues regularly, 
 but I appreciate any feedback or contributions!
-[Return to top](#return-to-top)
 
 <a id="the-confession"></a>
 ## The Confession
