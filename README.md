@@ -1,6 +1,16 @@
 # Callsign Trainer
 
-Ham radio callsign trainer.
+Ths _Callsign Trainer_ is an application that speaks random Amateur Radio callsigns
+for you to guess. The purpose of this is to give you practice at hearing callsigns.
+Ideally, it helps you to pick up the callsign correctly on the first try.
+
+Guessing the callsign correctly gives you a "correct" message. Otherwise, the same 
+callsign is repeated back to you until you guess it correctly. Then a new callsign
+is generated. 
+
+When you finish, you will be given some statistics to show how well you did.
+
+For now, the _Callsign Trainer_ only does US and Canadian call signs.
 
 <a id="return-to-top"></a>
 # Table of Contents
@@ -20,7 +30,7 @@ Ham radio callsign trainer.
 
 <a id="current-status"></a>
 # Current Status
-[Return to top](#return-to-top)  
+[Return to top](#return-to-top)
 
 * In the current version (0.9.x), this application will play all Fast letters (Fast Mode) and Slow Letters (Slow Mode).
   This fixes Issue #11.
@@ -155,24 +165,11 @@ Alternatively, you can right-click on `callsign.py` in IntelliJ and select "Run"
 # Introduction
 [Return to top](#return-to-top)
 
-Ths _Callsign Trainer_ is an application that speaks random Amateur Radio callsigns
-for you to guess. The purpose of this is to give you practice at hearing callsigns.
-Ideally, it helps you to pick up the callsign correctly on the first try.
-
-Guessing the callsign correctly gives you a "correct" message. Otherwise, the same 
-callsign is repeated back to you until you guess it correctly. Then a new callsign
-is generated. 
-
-When you finish, you will be given some statistics to show how well you did.
-
-For now, the _Callsign Trainer_ only does US and Canadian call signs.
-
-
 <a id="why-did-i-build-this"></a>
 ## Why Did I Build This
 [Return to top](#return-to-top)
 
-Hint: it wasn't just because I wanted to.
+Hint: it wasn't only just for fun. :-)
 
 There's a couple of events that came together that caused me to build this application.
 
@@ -202,14 +199,14 @@ good enough. So I added inflection to each letter and digit in a way a person wo
 naturally do it. As you give a callsign on the air, you raise or lower
 the tone in your voice slightly to convey the callsign to someone. You can hear this if
 you say the following callsign out loud:  
-`^al^pha^ -ze-ro- -yank-ee- -zu_lu_`  
+`^al^pha^ -ze-ro- -yank-ee- -zu-lu_`  
 In the above, I used ^ to mean a higher tone, a - to mean a middle tone, and _ to mean a
 lower tone.
 
 This application uses 3 recordings of each letter (one for a high tone, one for a 
 mid tone, and one for a low). Each digit uses just 1 recording (for a mid tone).
 
-Note: This feature was included in the original program!
+This feature was included in the original program!
 
 
 <a id="license"></a>
@@ -223,8 +220,13 @@ This project is licensed under the MIT License—see the [LICENSE](LICENSE) file
 
 <a id="addendum"></a>
 # Addendum
-[Return to top](#return-to-top)  
+[Return to top](#return-to-top)
 
+<a id="note"></a>
+## Note
+This is my first public repository. I may not check for comments or issues regularly, 
+but I appreciate any feedback or contributions!
+[Return to top](#return-to-top)
 
 <a id="the-confession"></a>
 ## The Confession
