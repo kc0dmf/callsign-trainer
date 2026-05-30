@@ -12,7 +12,7 @@ import logging
 # source ./env/callsign_trainer/bin/activate
 #
 
-VERSION = "0.9.1"
+VERSION = "0.9.2"
 
 letterDict = {
     1: "A", 2: "B", 3: "C", 4: "D", 5: "E"
